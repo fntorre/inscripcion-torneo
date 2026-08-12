@@ -96,6 +96,14 @@ final class IF_Admin {
 		);
 		add_submenu_page(
 			'edit.php?post_type=' . IF_Install::CPT_EQUIPO,
+			__( 'Detalle del equipo', 'inscripciones-futbol' ),
+			__( 'Detalle del equipo', 'inscripciones-futbol' ),
+			'manage_options',
+			'if-equipo-detalle',
+			array( __CLASS__, 'render_detalle_equipo' )
+		);
+		add_submenu_page(
+			'edit.php?post_type=' . IF_Install::CPT_EQUIPO,
 			__( 'Ajustes', 'inscripciones-futbol' ),
 			__( 'Ajustes', 'inscripciones-futbol' ),
 			'manage_options',
@@ -115,6 +123,28 @@ final class IF_Admin {
 
 		$equipo_id = isset( $_GET['equipo'] ) ? intval( $_GET['equipo'] ) : 0;
 		$accion    = isset( $_GET['accion'] ) ? sanitize_key( $_GET['accion'] ) : '';
+
+		if ( 'eliminar' === $accion ) {
+			if ( ! $equipo_id || ! get_post( $equipo_id ) ) {
+				wp_die( esc_html__( 'Equipo no encontrado.', 'inscripciones-futbol' ) );
+			}
+			$jugadores = get_posts( array(
+				'post_type'      => IF_Post_Types::JUGADOR,
+				'posts_per_page' => -1,
+				'post_status'    => 'any',
+				'meta_key'       => '_if_equipo_id',
+				'meta_value'     => $equipo_id,
+				'fields'         => 'ids',
+			) );
+			foreach ( $jugadores as $jid ) {
+				wp_delete_post( $jid, true );
+			}
+			wp_delete_post( $equipo_id, true );
+
+			$destino = admin_url( 'admin.php?page=if-panel' );
+			wp_safe_redirect( $destino );
+			exit;
+		}
 
 		$resultado = IF_App::servicio()->cambiarEstado( $equipo_id, $accion );
 		if ( ! $resultado->ok ) {
@@ -174,6 +204,28 @@ final class IF_Admin {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
+
+		if ( isset( $_POST['if_bulk_submit'] ) && isset( $_POST['if_bulk_accion'] ) && 'eliminar' === $_POST['if_bulk_accion'] ) {
+			check_admin_referer( 'if_bulk_accion', 'if_bulk_nonce' );
+			$seleccionados = isset( $_POST['if_equipos'] ) ? array_map( 'intval', (array) $_POST['if_equipos'] ) : array();
+			foreach ( $seleccionados as $eid ) {
+				$jugadores = get_posts( array(
+					'post_type'      => IF_Post_Types::JUGADOR,
+					'posts_per_page' => -1,
+					'post_status'    => 'any',
+					'meta_key'       => '_if_equipo_id',
+					'meta_value'     => $eid,
+					'fields'         => 'ids',
+				) );
+				foreach ( $jugadores as $jid ) {
+					wp_delete_post( $jid, true );
+				}
+				wp_delete_post( $eid, true );
+			}
+			wp_safe_redirect( admin_url( 'admin.php?page=if-panel&if_eliminados=' . count( $seleccionados ) ) );
+			exit;
+		}
+
 		$filtro = isset( $_GET['if_estado'] ) ? sanitize_key( $_GET['if_estado'] ) : '';
 		$store  = IF_App::store();
 
@@ -220,9 +272,11 @@ final class IF_Admin {
 				<?php endforeach; ?>
 			</div>
 
+			<form method="post" id="if-bulk-form">
 			<table class="widefat striped">
 				<thead>
 					<tr>
+						<th style="width:30px;"><input type="checkbox" id="if-check-all" /></th>
 						<th><?php esc_html_e( 'Equipo', 'inscripciones-futbol' ); ?></th>
 						<th><?php esc_html_e( 'Delegado', 'inscripciones-futbol' ); ?></th>
 						<th><?php esc_html_e( 'Estado', 'inscripciones-futbol' ); ?></th>
@@ -232,13 +286,14 @@ final class IF_Admin {
 				</thead>
 				<tbody>
 				<?php if ( ! $filtrados ) : ?>
-					<tr><td colspan="5"><?php esc_html_e( 'Sin resultados.', 'inscripciones-futbol' ); ?></td></tr>
+					<tr><td colspan="6"><?php esc_html_e( 'Sin resultados.', 'inscripciones-futbol' ); ?></td></tr>
 				<?php endif; ?>
 				<?php foreach ( $filtrados as $e ) : ?>
 					<?php $d = $store->obtenerDelegado( $e->delegadoId ); ?>
 					<tr>
+						<td><input type="checkbox" name="if_equipos[]" value="<?php echo esc_attr( $e->id ); ?>" /></td>
 						<td>
-							<a href="<?php echo esc_url( get_edit_post_link( $e->id ) ); ?>"><?php echo esc_html( $e->nombre ); ?></a>
+							<a href="<?php echo esc_url( admin_url( 'admin.php?page=if-equipo-detalle&equipo=' . $e->id ) ); ?>"><?php echo esc_html( $e->nombre ); ?></a>
 							<?php if ( $e->linkPago ) { echo '<div class="if-mini">' . esc_html__( 'Link propio', 'inscripciones-futbol' ) . '</div>'; } ?>
 						</td>
 						<td>
@@ -254,15 +309,248 @@ final class IF_Admin {
 				<?php endforeach; ?>
 				</tbody>
 			</table>
+			<div style="margin-top:10px;">
+				<?php wp_nonce_field( 'if_bulk_accion', 'if_bulk_nonce' ); ?>
+				<select name="if_bulk_accion">
+					<option value=""><?php esc_html_e( 'Acciones masivas...', 'inscripciones-futbol' ); ?></option>
+					<option value="eliminar"><?php esc_html_e( 'Eliminar seleccionados', 'inscripciones-futbol' ); ?></option>
+				</select>
+				<button type="submit" name="if_bulk_submit" class="button" onclick="return confirm('<?php esc_attr_e( '¿Eliminar los equipos seleccionados y todos sus jugadores?', 'inscripciones-futbol' ); ?>');"><?php esc_html_e( 'Aplicar', 'inscripciones-futbol' ); ?></button>
+			</div>
+			</form>
 		</div>
 		<?php
 	}
 
 	/**
-	 * Botones de acción para un equipo.
-	 *
-	 * @param IF\Core\Equipo $equipo Equipo.
+	 * Vista de detalle de un equipo (accesible desde ?page=if-equipo-detalle&equipo=X).
+	 * Si no hay equipo=X, muestra lista de todos los equipos para elegir.
 	 */
+	public static function render_detalle_equipo() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$equipo_id = isset( $_GET['equipo'] ) ? intval( $_GET['equipo'] ) : 0;
+		$store     = IF_App::store();
+
+		// Si NO hay equipo_id, mostrar lista de todos los equipos
+		if ( ! $equipo_id ) {
+			$filtro     = isset( $_GET['if_estado'] ) ? sanitize_key( $_GET['if_estado'] ) : '';
+			$equipos    = $store->listarEquipos();
+			$filtrados  = $filtro ? $store->listarEquipos( $filtro ) : $equipos;
+
+			$por_estado = array();
+			foreach ( $equipos as $e ) {
+				$por_estado[ $e->estado ] = isset( $por_estado[ $e->estado ] ) ? $por_estado[ $e->estado ] + 1 : 1;
+			}
+			?>
+			<div class="wrap">
+				<h1><?php esc_html_e( 'Detalle de equipos', 'inscripciones-futbol' ); ?></h1>
+
+				<div class="if-cards">
+					<?php
+					$totales = array(
+						'total'      => count( $equipos ),
+						'pendiente'  => isset( $por_estado['pendiente'] ) ? $por_estado['pendiente'] : 0,
+						'activa'     => isset( $por_estado['activa'] ) ? $por_estado['activa'] : 0,
+						'rechazada'  => isset( $por_estado['rechazada'] ) ? $por_estado['rechazada'] : 0,
+						'bloqueada'  => isset( $por_estado['bloqueada'] ) ? $por_estado['bloqueada'] : 0,
+					);
+					foreach ( $totales as $clave => $valor ) {
+						$etiqueta = 'total' === $clave ? 'Total' : Estado::etiquetas()[ $clave ];
+						echo '<div class="if-card if-card-' . esc_attr( $clave ) . '"><span class="if-card-num">' . esc_html( $valor ) . '</span><span class="if-card-label">' . esc_html( $etiqueta ) . '</span></div>';
+					}
+					?>
+				</div>
+
+				<div class="if-filtros" style="margin-bottom:15px;">
+					<a class="if-filtro <?php echo $filtro ? '' : 'activo'; ?>" href="?page=if-equipo-detalle"><?php esc_html_e( 'Todas', 'inscripciones-futbol' ); ?></a>
+					<?php foreach ( Estado::etiquetas() as $clave => $etiqueta ) : ?>
+						<a class="if-filtro <?php echo $filtro === $clave ? 'activo' : ''; ?>" href="?page=if-equipo-detalle&if_estado=<?php echo esc_attr( $clave ); ?>"><?php echo esc_html( $etiqueta ); ?> (<?php echo esc_html( isset( $por_estado[ $clave ] ) ? $por_estado[ $clave ] : 0 ); ?>)</a>
+					<?php endforeach; ?>
+				</div>
+
+				<table class="widefat striped">
+					<thead>
+						<tr>
+							<th><?php esc_html_e( 'Equipo', 'inscripciones-futbol' ); ?></th>
+							<th><?php esc_html_e( 'Delegado', 'inscripciones-futbol' ); ?></th>
+							<th><?php esc_html_e( 'Estado', 'inscripciones-futbol' ); ?></th>
+							<th><?php esc_html_e( 'Jugadores', 'inscripciones-futbol' ); ?></th>
+							<th><?php esc_html_e( 'Comprobante', 'inscripciones-futbol' ); ?></th>
+							<th><?php esc_html_e( 'Acciones', 'inscripciones-futbol' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php if ( ! $filtrados ) : ?>
+						<tr><td colspan="6"><?php esc_html_e( 'Sin resultados.', 'inscripciones-futbol' ); ?></td></tr>
+					<?php else : ?>
+						<?php foreach ( $filtrados as $e ) : ?>
+							<?php $d = $store->obtenerDelegado( $e->delegadoId ); ?>
+							<tr>
+								<td>
+									<a href="<?php echo esc_url( admin_url( 'admin.php?page=if-equipo-detalle&equipo=' . $e->id ) ); ?>">
+										<strong><?php echo esc_html( $e->nombre ); ?></strong>
+									</a>
+								</td>
+								<td>
+									<?php echo esc_html( $d ? $d->nombreCompleto() : '—' ); ?>
+									<div class="if-mini"><?php echo esc_html( $d ? $d->dni : '' ); ?> · <?php echo esc_html( $d ? $d->email : '' ); ?></div>
+								</td>
+								<td><span class="if-badge if-badge-<?php echo esc_attr( $e->estado ); ?>"><?php echo esc_html( Estado::etiquetas()[ $e->estado ] ); ?></span></td>
+								<td><?php echo count( IF_App::servicio()->jugadoresDe( $e->id ) ); ?></td>
+								<td><?php echo $e->comprobante ? '<a href="' . esc_url( $e->comprobante ) . '" target="_blank" rel="noopener">' . esc_html__( 'Ver', 'inscripciones-futbol' ) . '</a>' : '—'; ?></td>
+								<td>
+									<a class="button button-small" href="<?php echo esc_url( admin_url( 'admin.php?page=if-equipo-detalle&equipo=' . $e->id ) ); ?>"><?php esc_html_e( 'Ver detalle', 'inscripciones-futbol' ); ?></a>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+					<?php endif; ?>
+					</tbody>
+				</table>
+			</div>
+			<?php
+			return;
+		}
+
+		// Si HAY equipo_id, mostrar detalle (código original)
+		if ( ! $equipo_id || ! ( $equipo = get_post( $equipo_id ) ) || $equipo->post_type !== IF_Install::CPT_EQUIPO ) {
+			wp_die( esc_html__( 'Equipo no encontrado.', 'inscripciones-futbol' ) );
+		}
+
+		$store    = IF_App::store();
+		$equipo_o = $store->obtenerEquipo( $equipo_id );
+		$delegado = $store->obtenerDelegado( $equipo_o->delegadoId );
+		$jugadores = IF_App::servicio()->jugadoresDe( $equipo_id );
+
+		// Actions
+		if ( isset( $_GET['accion'] ) && check_admin_referer( 'if_accion', '_wpnonce', false ) ) {
+			$accion = sanitize_key( $_GET['accion'] );
+			$resultado = IF_App::servicio()->cambiarEstado( $equipo_id, $accion );
+			if ( $resultado->ok ) {
+				wp_safe_redirect( remove_query_arg( 'accion' ) );
+				exit;
+			}
+		}
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'Detalle del equipo', 'inscripciones-futbol' ); ?>: <?php echo esc_html( $equipo_o->nombre ); ?></h1>
+
+			<div class="if-cards" style="margin-bottom:20px;">
+				<div class="if-card if-card-<?php echo esc_attr( $equipo_o->estado ); ?>">
+					<span class="if-card-num"><?php echo esc_html( Estado::etiquetas()[ $equipo_o->estado ] ); ?></span>
+					<span class="if-card-label"><?php esc_html_e( 'Estado', 'inscripciones-futbol' ); ?></span>
+				</div>
+				<div class="if-card">
+					<span class="if-card-num"><?php echo count( $jugadores ); ?></span>
+					<span class="if-card-label"><?php esc_html_e( 'Jugadores', 'inscripciones-futbol' ); ?></span>
+				</div>
+				<div class="if-card">
+					<span class="if-card-num"><?php echo esc_html( $delegado ? $delegado->nombreCompleto() : '—' ); ?></span>
+					<span class="if-card-label"><?php esc_html_e( 'Delegado', 'inscripciones-futbol' ); ?></span>
+				</div>
+				<div class="if-card">
+					<span class="if-card-num"><?php echo esc_html( $equipo_o->comprobante ? 'Sí' : 'No' ); ?></span>
+					<span class="if-card-label"><?php esc_html_e( 'Comprobante', 'inscripciones-futbol' ); ?></span>
+				</div>
+			</div>
+
+			<div style="display:grid; grid-template-columns: 1fr 300px; gap:20px; margin-bottom:20px;">
+				<div>
+					<h2><?php esc_html_e( 'Información del equipo', 'inscripciones-futbol' ); ?></h2>
+					<table class="widefat">
+						<tbody>
+							<tr><th><?php esc_html_e( 'Nombre', 'inscripciones-futbol' ); ?></th><td><?php echo esc_html( $equipo_o->nombre ); ?></td></tr>
+							<tr><th><?php esc_html_e( 'Estado', 'inscripciones-futbol' ); ?></th><td><span class="if-badge if-badge-<?php echo esc_attr( $equipo_o->estado ); ?>"><?php echo esc_html( Estado::etiquetas()[ $equipo_o->estado ] ); ?></span></td></tr>
+							<tr><th><?php esc_html_e( 'Link de pago propio', 'inscripciones-futbol' ); ?></th><td><?php echo $equipo_o->linkPago ? '<a href="' . esc_url( $equipo_o->linkPago ) . '" target="_blank" rel="noopener">' . esc_url( $equipo_o->linkPago ) . '</a>' : '—'; ?></td></tr>
+							<tr><th><?php esc_html_e( 'Comprobante', 'inscripciones-futbol' ); ?></th><td><?php echo $equipo_o->comprobante ? '<a href="' . esc_url( $equipo_o->comprobante ) . '" target="_blank" rel="noopener">' . esc_html__( 'Ver comprobante', 'inscripciones-futbol' ) . '</a>' : '—'; ?></td></tr>
+							<tr><th><?php esc_html_e( 'Escudo', 'inscripciones-futbol' ); ?></th><td><?php echo $equipo_o->escudo ? '<img src="' . esc_url( $equipo_o->escudo ) . '" style="max-width:100px;height:auto;" />' : '—'; ?></td></tr>
+							<tr><th><?php esc_html_e( 'Creado', 'inscripciones-futbol' ); ?></th><td><?php echo esc_html( $equipo->post_date ); ?></td></tr>
+						</tbody>
+					</table>
+				</div>
+
+				<div>
+					<h2><?php esc_html_e( 'Delegado', 'inscripciones-futbol' ); ?></h2>
+					<?php if ( $delegado ) : ?>
+					<table class="widefat">
+						<tbody>
+							<tr><th><?php esc_html_e( 'Nombre', 'inscripciones-futbol' ); ?></th><td><?php echo esc_html( $delegado->nombreCompleto() ); ?></td></tr>
+							<tr><th><?php esc_html_e( 'DNI', 'inscripciones-futbol' ); ?></th><td><?php echo esc_html( $delegado->dni ); ?></td></tr>
+							<tr><th><?php esc_html_e( 'Teléfono', 'inscripciones-futbol' ); ?></th><td><?php echo esc_html( $delegado->telefono ); ?></td></tr>
+							<tr><th><?php esc_html_e( 'Email', 'inscripciones-futbol' ); ?></th><td><?php echo esc_html( $delegado->email ); ?></td></tr>
+						</tbody>
+					</table>
+					<?php else : ?>
+					<p><?php esc_html_e( 'Sin delegado asignado', 'inscripciones-futbol' ); ?></p>
+					<?php endif; ?>
+				</div>
+			</div>
+
+			<h2><?php esc_html_e( 'Jugadores', 'inscripciones-futbol' ); ?></h2>
+			<?php if ( $jugadores ) : ?>
+				<table class="widefat striped">
+					<thead>
+						<tr>
+							<th><?php esc_html_e( 'Nombre', 'inscripciones-futbol' ); ?></th>
+							<th><?php esc_html_e( 'DNI', 'inscripciones-futbol' ); ?></th>
+							<th><?php esc_html_e( 'Posición', 'inscripciones-futbol' ); ?></th>
+							<th><?php esc_html_e( 'Rol', 'inscripciones-futbol' ); ?></th>
+							<th><?php esc_html_e( 'Foto', 'inscripciones-futbol' ); ?></th>
+							<th><?php esc_html_e( 'DNI archivo', 'inscripciones-futbol' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach ( $jugadores as $j ) : ?>
+						<tr>
+							<td><?php echo esc_html( $j->nombreCompleto() ); ?></td>
+							<td><?php echo esc_html( $j->dni ); ?></td>
+							<td><?php echo esc_html( $j->posicion ); ?></td>
+							<td><?php echo esc_html( $j->rol ); ?></td>
+							<td><?php echo $j->foto ? '<img src="' . esc_url( $j->foto ) . '" style="width:40px;height:40px;object-fit:cover;border-radius:50%;" />' : '—'; ?></td>
+							<td><?php echo $j->archivoDni ? '<a href="' . esc_url( $j->archivoDni ) . '" target="_blank" rel="noopener">' . esc_html__( 'Ver', 'inscripciones-futbol' ) . '</a>' : '—'; ?></td>
+						</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			<?php else : ?>
+				<p><?php esc_html_e( 'Sin jugadores cargados', 'inscripciones-futbol' ); ?></p>
+			<?php endif; ?>
+
+			<div style="margin-top:20px; padding:15px; background:#f7f7f7; border:1px solid #ddd; border-radius:4px;">
+				<h3><?php esc_html_e( 'Acciones', 'inscripciones-futbol' ); ?></h3>
+				<p>
+					<?php
+					$url = admin_url( 'admin-post.php?action=if_accion&equipo=' . $equipo_id . '&accion=' );
+					if ( in_array( $equipo_o->estado, array( Estado::PENDIENTE, Estado::RECHAZADA ), true ) ) {
+						echo '<a class="button button-primary" href="' . esc_url( wp_nonce_url( $url . 'aprobar', 'if_accion' ) ) . '">' . esc_html__( 'Aprobar pago', 'inscripciones-futbol' ) . '</a> ';
+					}
+					if ( Estado::PENDIENTE === $equipo_o->estado || Estado::ACTIVA === $equipo_o->estado ) {
+						echo '<a class="button" href="' . esc_url( wp_nonce_url( $url . 'rechazar', 'if_accion' ) ) . '">' . esc_html__( 'Rechazar pago', 'inscripciones-futbol' ) . '</a> ';
+					}
+					if ( Estado::RECHAZADA === $equipo_o->estado || Estado::ACTIVA === $equipo_o->estado ) {
+						echo '<a class="button" href="' . esc_url( wp_nonce_url( $url . 'marcar_pendiente', 'if_accion' ) ) . '">' . esc_html__( 'Marcar pendiente', 'inscripciones-futbol' ) . '</a> ';
+					}
+					if ( Estado::BLOQUEADA === $equipo_o->estado ) {
+						echo '<a class="button" href="' . esc_url( wp_nonce_url( $url . 'desbloquear', 'if_accion' ) ) . '">' . esc_html__( 'Desbloquear', 'inscripciones-futbol' ) . '</a> ';
+					} else {
+						echo '<a class="button" href="' . esc_url( wp_nonce_url( $url . 'bloquear', 'if_accion' ) ) . '">' . esc_html__( 'Bloquear', 'inscripciones-futbol' ) . '</a> ';
+					}
+					?>
+				</p>
+				<p>
+					<?php foreach ( array( 'csv', 'xls' ) as $f ) : ?>
+					<a class="button" href="<?php echo esc_url( home_url( '/?if_exportar=1&if_formato=' . $f . '&if_equipo=' . $equipo_id ) ); ?>"><?php echo esc_html( strtoupper( $f ) ); ?></a>
+					<?php endforeach; ?>
+					<a class="button" href="<?php echo esc_url( get_edit_post_link( $equipo_id ) ); ?>"><?php esc_html_e( 'Editar en WP', 'inscripciones-futbol' ); ?></a>
+				</p>
+			</div>
+
+			<p><a href="<?php echo esc_url( admin_url( 'admin.php?page=if-panel' ) ); ?>" class="button">&larr; <?php esc_html_e( 'Volver al panel', 'inscripciones-futbol' ); ?></a></p>
+		</div>
+		<?php
+	}
 	private static function botones( $equipo ) {
 		$url = admin_url( 'admin-post.php?action=if_accion&equipo=' . $equipo->id . '&accion=' );
 
@@ -285,7 +573,8 @@ final class IF_Admin {
 		foreach ( array( 'csv', 'xls' ) as $f ) {
 			echo '<a class="button button-small" href="' . esc_url( home_url( '/?if_exportar=1&if_formato=' . $f . '&if_equipo=' . $equipo->id ) ) . '">' . esc_html( strtoupper( $f ) ) . '</a> ';
 		}
-		echo '<a class="button button-small" href="' . esc_url( get_edit_post_link( $equipo->id ) ) . '">' . esc_html__( 'Editar', 'inscripciones-futbol' ) . '</a>';
+		echo '<a class="button button-small" href="' . esc_url( get_edit_post_link( $equipo->id ) ) . '">' . esc_html__( 'Editar', 'inscripciones-futbol' ) . '</a> ';
+		echo '<a class="button button-small button-link-delete" href="' . esc_url( wp_nonce_url( $url . 'eliminar', 'if_accion' ) ) . '" onclick="return confirm(\'' . esc_js( __( '¿Eliminar este equipo y todos sus jugadores?', 'inscripciones-futbol' ) ) . '\');">' . esc_html__( 'Eliminar', 'inscripciones-futbol' ) . '</a>';
 	}
 
 	/**
@@ -299,6 +588,7 @@ final class IF_Admin {
 			check_admin_referer( 'if_ajustes', 'if_ajustes_nonce' );
 			update_option( 'if_mp_link', esc_url_raw( wp_unslash( $_POST['if_mp_link'] ) ) );
 			update_option( 'if_monto_inscripcion', floatval( $_POST['if_monto_inscripcion'] ) );
+			update_option( 'if_mp_access_token', sanitize_text_field( wp_unslash( $_POST['if_mp_access_token'] ) ) );
 			echo '<div class="notice notice-success"><p>' . esc_html__( 'Ajustes guardados.', 'inscripciones-futbol' ) . '</p></div>';
 		}
 		?>
@@ -307,15 +597,22 @@ final class IF_Admin {
 			<form method="post">
 				<table class="form-table">
 					<tr>
-						<th scope="row"><label for="if_mp_link"><?php esc_html_e( 'Link de pago de Mercado Pago', 'inscripciones-futbol' ); ?></label></th>
+						<th scope="row"><label for="if_monto_inscripcion"><?php esc_html_e( 'Monto de inscripción (ARS)', 'inscripciones-futbol' ); ?></label></th>
+						<td><input type="number" step="0.01" id="if_monto_inscripcion" name="if_monto_inscripcion" value="<?php echo esc_attr( IF_App::store()->montoInscripcion() ); ?>" /></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="if_mp_access_token"><?php esc_html_e( 'Access Token de Mercado Pago', 'inscripciones-futbol' ); ?></label></th>
 						<td>
-							<input type="url" id="if_mp_link" name="if_mp_link" class="regular-text" value="<?php echo esc_attr( IF_App::store()->linkPagoGeneral() ); ?>" />
-							<p class="description"><?php esc_html_e( 'Link generado en Mercado Pago que usarán todos los delegados. Podés configurar un link propio por equipo desde la edición del equipo.', 'inscripciones-futbol' ); ?></p>
+							<input type="text" id="if_mp_access_token" name="if_mp_access_token" class="regular-text" value="<?php echo esc_attr( get_option( 'if_mp_access_token', '' ) ); ?>" />
+							<p class="description"><?php esc_html_e( 'Token de acceso a la API de Mercado Pago (Checkout Pro). Lo encontrás en tu cuenta de MP en Tu negocio > Credenciales.', 'inscripciones-futbol' ); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="if_monto_inscripcion"><?php esc_html_e( 'Monto de inscripción (ARS)', 'inscripciones-futbol' ); ?></label></th>
-						<td><input type="number" step="0.01" id="if_monto_inscripcion" name="if_monto_inscripcion" value="<?php echo esc_attr( IF_App::store()->montoInscripcion() ); ?>" /></td>
+						<th scope="row"><label for="if_mp_link"><?php esc_html_e( 'Link de pago de Mercado Pago (legacy)', 'inscripciones-futbol' ); ?></label></th>
+						<td>
+							<input type="url" id="if_mp_link" name="if_mp_link" class="regular-text" value="<?php echo esc_attr( IF_App::store()->linkPagoGeneral() ); ?>" />
+							<p class="description"><?php esc_html_e( 'Link manual de cobro. Solo se usa si el Access Token está vacío.', 'inscripciones-futbol' ); ?></p>
+						</td>
 					</tr>
 				</table>
 				<?php wp_nonce_field( 'if_ajustes', 'if_ajustes_nonce' ); ?>

@@ -111,6 +111,10 @@ function if_crear_equipo( $user_id, $nombre ) {
  */
 function if_set_equipo_pago_estado( $equipo_id, $estado ) {
 	update_post_meta( $equipo_id, '_if_pago_estado', $estado );
+
+	if ( 'aprobado' === $estado ) {
+		update_post_meta( $equipo_id, '_if_estado', 'activa' );
+	}
 }
 
 /**

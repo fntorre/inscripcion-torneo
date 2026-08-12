@@ -80,5 +80,18 @@ final class IF_Install {
 				'capability_type' => 'post',
 			)
 		);
+		register_post_type(
+			'if_pago',
+			array(
+				'labels'          => array(
+					'name'          => __( 'Pagos', 'inscripciones-futbol' ),
+					'singular_name' => __( 'Pago', 'inscripciones-futbol' ),
+				),
+				'public'          => false,
+				'show_ui'         => false,
+				'supports'        => array( 'title' ),
+				'capability_type' => 'post',
+			)
+		);
 	}
 }

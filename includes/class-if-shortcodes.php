@@ -183,7 +183,6 @@ final class IF_Shortcodes {
 	 */
 	private static function render_paso_pago( $equipo ) {
 		$monto = IF_App::store()->montoInscripcion();
-		$link  = $equipo->linkPago ? $equipo->linkPago : IF_App::store()->linkPagoGeneral();
 		$estado = $equipo->estado;
 		echo '<div class="if-card"><h3>' . esc_html__( 'Paso 3 · Pago de la inscripción', 'inscripciones-futbol' ) . '</h3>';
 		echo '<p class="if-estado">' . esc_html__( 'Estado: ', 'inscripciones-futbol' ) . '<span class="if-badge if-badge-' . esc_attr( $estado ) . '">' . esc_html( Estado::etiquetas()[ $estado ] ) . '</span></p>';
@@ -196,33 +195,15 @@ final class IF_Shortcodes {
 		}
 
 		echo '<p>' . sprintf( esc_html__( 'Monto de la inscripción: %s', 'inscripciones-futbol' ), '<strong>$' . number_format( $monto, 2, ',', '.' ) . '</strong>' ) . '</p>';
-		if ( Estado::BLOQUEADA !== $estado && $link ) {
-			echo '<p><a class="if-btn if-btn-mp" href="' . esc_url( $link ) . '" target="_blank" rel="noopener">' . esc_html__( 'Pagar con Mercado Pago', 'inscripciones-futbol' ) . '</a></p>';
-			echo '<p class="if-note">' . esc_html__( 'Después de pagar, adjuntá el comprobante para que la organización lo apruebe.', 'inscripciones-futbol' ) . '</p>';
-		} else {
-			echo '<p>' . esc_html__( 'El link de pago aún no está disponible. Contactate con la organización.', 'inscripciones-futbol' ) . '</p>';
+
+		if ( Estado::BLOQUEADA !== $estado ) {
+			echo '<form class="if-form" method="post" action="">';
+			echo '<input type="hidden" name="if_equipo_id" value="' . esc_attr( $equipo->id ) . '" />';
+			wp_nonce_field( 'if_crear_pago', 'if_crear_pago_nonce' );
+			echo '<p><button type="submit" name="if_crear_pago_submit" class="if-btn if-btn-mp">' . esc_html__( 'Pagar con Mercado Pago', 'inscripciones-futbol' ) . '</button></p>';
+			echo '</form>';
 		}
 
-		// Comprobante.
-		if ( Estado::BLOQUEADA !== $estado ) {
-			echo '<div class="if-comprobante">';
-			echo '<h4>' . esc_html__( 'Comprobante de pago', 'inscripciones-futbol' ) . '</h4>';
-			if ( $equipo->comprobante ) {
-				echo '<p><a class="if-btn" href="' . esc_url( $equipo->comprobante ) . '" target="_blank" rel="noopener">' . esc_html__( 'Ver comprobante adjunto', 'inscripciones-futbol' ) . '</a></p>';
-			}
-			if ( Estado::PENDIENTE === $estado && $equipo->comprobante ) {
-				echo '<p class="if-note">' . esc_html__( 'Tu comprobante fue enviado y está en revisión.', 'inscripciones-futbol' ) . '</p>';
-			} else {
-				echo '<form class="if-form" method="post" action="" enctype="multipart/form-data">';
-				?><p><label><?php esc_html_e( 'Adjuntar comprobante (imagen o PDF)', 'inscripciones-futbol' ); ?></label>
-				<input type="file" name="if_comprobante" accept="image/*,.pdf" required /></p>
-				<?php wp_nonce_field( 'if_comprobante', 'if_comprobante_nonce' ); ?>
-				<p><button type="submit" name="if_comprobante_submit" class="if-btn"><?php esc_html_e( 'Enviar comprobante', 'inscripciones-futbol' ); ?></button></p>
-				</form>
-				<?php
-			}
-			echo '</div>';
-		}
 		echo '</div>';
 	}
 
@@ -385,6 +366,9 @@ final class IF_Shortcodes {
 	 * Procesa los formularios del frontend.
 	 */
 	public static function procesar() {
+		if ( isset( $_GET['if_pago_resultado'] ) && isset( $_GET['if_equipo'] ) ) {
+			self::procesar_return_pago();
+		}
 		if ( isset( $_POST['if_registro_submit'] ) ) {
 			self::procesar_registro();
 		}
@@ -396,6 +380,9 @@ final class IF_Shortcodes {
 		}
 		if ( isset( $_POST['if_comprobante_submit'] ) ) {
 			self::procesar_comprobante();
+		}
+		if ( isset( $_POST['if_crear_pago_submit'] ) ) {
+			self::procesar_pago();
 		}
 		if ( isset( $_POST['if_escudo_submit'] ) ) {
 			self::procesar_escudo();
@@ -432,7 +419,10 @@ final class IF_Shortcodes {
 			}
 		);
 		if ( $resultado->ok ) {
-			self::redirigir( '¡Registro completo! Completá el pago para cargar jugadores.', 'ok' );
+			$panel_url = add_query_arg( 'if_msj', rawurlencode( '¡Registro completo! Completá el pago para cargar jugadores.' ), home_url( '/cargar-equipo/' ) );
+			$panel_url = add_query_arg( 'if_tipo', 'ok', $panel_url );
+			wp_safe_redirect( $panel_url );
+			exit;
 		}
 		self::redirigir( $resultado->errores );
 	}
@@ -486,6 +476,69 @@ final class IF_Shortcodes {
 		$archivo   = self::subir_archivo( 'if_comprobante' );
 		$resultado = IF_App::servicio()->adjuntarComprobante( get_current_user_id(), $archivo ? $archivo : '' );
 		self::redirigir( $resultado->ok ? 'Comprobante enviado. Queda en revisión.' : $resultado->errores, $resultado->ok ? 'ok' : 'error' );
+	}
+
+	/**
+	 * Crear preferencia de pago y redirigir a MercadoPago.
+	 */
+	private static function procesar_pago() {
+		self::exigir_delegado();
+		check_admin_referer( 'if_crear_pago', 'if_crear_pago_nonce' );
+
+		$equipo_id = isset( $_POST['if_equipo_id'] ) ? intval( $_POST['if_equipo_id'] ) : 0;
+		$equipo    = get_post( $equipo_id );
+
+		if ( ! $equipo_id || ! $equipo || strval( $equipo->post_author ) !== strval( get_current_user_id() ) ) {
+			self::redirigir( 'Equipo no válido.', 'error' );
+		}
+
+		$url = IF_MercadoPago::crear_preferencia( $equipo_id, $equipo->post_title . ' - Inscripción' );
+
+		if ( is_wp_error( $url ) ) {
+			wp_die( 'Error de MercadoPago: ' . esc_html( $url->get_error_message() ) );
+		}
+
+		add_filter( 'allowed_redirect_hosts', function( $hosts ) {
+			$hosts[] = 'www.mercadopago.com.ar';
+			$hosts[] = 'mercadopago.com.ar';
+			return $hosts;
+		} );
+		wp_safe_redirect( $url );
+		exit;
+	}
+
+	/**
+	 * Procesa el return de MercadoPago después del pago.
+	 */
+	private static function procesar_return_pago() {
+		$resultado = sanitize_text_field( wp_unslash( $_GET['if_pago_resultado'] ) );
+		$equipo_id = intval( $_GET['if_equipo'] );
+
+		if ( ! $equipo_id || ! is_user_logged_in() ) {
+			return;
+		}
+
+		$equipo = get_post( $equipo_id );
+		if ( ! $equipo || strval( $equipo->post_author ) !== strval( get_current_user_id() ) ) {
+			return;
+		}
+
+		if ( 'aprobado' === $resultado ) {
+			if_set_equipo_pago_estado( $equipo_id, 'aprobado' );
+		} elseif ( 'rechazado' === $resultado ) {
+			if_set_equipo_pago_estado( $equipo_id, 'rechazado' );
+		} else {
+			if_set_equipo_pago_estado( $equipo_id, 'pendiente' );
+		}
+
+		$panel_url = home_url( '/cargar-equipo/' );
+		$msj = 'aprobado' === $resultado
+			? '¡Pago aprobado! Ya podés cargar jugadores.'
+			: ( 'rechazado' === $resultado ? 'El pago fue rechazado.' : 'El pago está pendiente.' );
+		$tipo = 'aprobado' === $resultado ? 'ok' : 'error';
+
+		wp_safe_redirect( add_query_arg( array( 'if_msj' => rawurlencode( $msj ), 'if_tipo' => $tipo ), $panel_url ) );
+		exit;
 	}
 
 	/**

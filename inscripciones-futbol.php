@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Inscripciones Fútbol
  * Description: Sistema de inscripción de equipos y jugadores para club o campeonato de fútbol. Lógica desacoplada de WordPress.
- * Version:     2.0.0
+ * Version:     2.0.1
  * Author:      Inscripciones Fútbol
  * License:     GPL-2.0-or-later
  * Text Domain: inscripciones-futbol
@@ -26,6 +26,9 @@ require_once IF_PLUGIN_DIR . 'includes/class-if-admin.php';
 require_once IF_PLUGIN_DIR . 'includes/class-if-metaboxes.php';
 require_once IF_PLUGIN_DIR . 'includes/class-if-export-http.php';
 require_once IF_PLUGIN_DIR . 'includes/class-if-assets.php';
+require_once IF_PLUGIN_DIR . 'includes/class-if-helpers.php';
+require_once IF_PLUGIN_DIR . 'includes/class-if-post-types.php';
+require_once IF_PLUGIN_DIR . 'includes/class-if-mercadopago.php';
 
 IF_Install::hooks();
 IF_Shortcodes::hooks();

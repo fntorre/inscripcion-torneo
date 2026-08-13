@@ -98,12 +98,6 @@ final class IF_Metaboxes {
 							<?php foreach ( $jugadores as $j ) : ?>
 								<li>
 									<?php echo esc_html( $j->nombreCompleto() . ' — DNI: ' . $j->dni ); ?>
-									<?php if ( $j->posicion && isset( Jugador::posiciones()[ $j->posicion ] ) ) : ?>
-										&middot; <?php echo esc_html( Jugador::posiciones()[ $j->posicion ] ); ?>
-									<?php endif; ?>
-									<?php if ( $j->rol && isset( Jugador::roles()[ $j->rol ] ) ) : ?>
-										&middot; <strong><?php echo esc_html( Jugador::roles()[ $j->rol ] ); ?></strong>
-									<?php endif; ?>
 									<?php if ( $j->archivoDni ) : ?>
 										&mdash; <a href="<?php echo esc_url( $j->archivoDni ); ?>" target="_blank"><?php esc_html_e( 'Ver archivo', 'inscripciones-futbol' ); ?></a>
 									<?php endif; ?>

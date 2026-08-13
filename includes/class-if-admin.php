@@ -29,7 +29,7 @@ final class IF_Admin {
 	}
 
 	/**
-	 * Al iniciar sesión, envía al delegado a la home y no al dashboard.
+	 * Al iniciar sesión, envía al delegado al panel de inscripción (/cargar-equipo/) en lugar del dashboard ni la home.
 	 *
 	 * @param string   $redirect_to Destino original.
 	 * @param string   $request     Request.
@@ -37,10 +37,19 @@ final class IF_Admin {
 	 * @return string
 	 */
 	public static function redirigir_login_delegado( $redirect_to, $request, $user ) {
-		if ( $user && in_array( IF_Install::ROL, (array) $user->roles, true ) && ! in_array( 'administrator', (array) $user->roles, true ) ) {
-			return home_url( '/' );
+		if ( ! $user || ! in_array( IF_Install::ROL, (array) $user->roles, true ) || in_array( 'administrator', (array) $user->roles, true ) ) {
+			return $redirect_to;
 		}
-		return $redirect_to;
+
+		$panel = home_url( '/cargar-equipo/' );
+
+		// Si WordPress ya decidió redirigir al panel, conservamos el destino.
+		if ( $redirect_to && 0 === strpos( $redirect_to, $panel ) ) {
+			return $redirect_to;
+		}
+
+		// Si no hay redirect_to explícito, enviamos al panel del delegado.
+		return $panel;
 	}
 
 	/**
@@ -495,8 +504,6 @@ final class IF_Admin {
 						<tr>
 							<th><?php esc_html_e( 'Nombre', 'inscripciones-futbol' ); ?></th>
 							<th><?php esc_html_e( 'DNI', 'inscripciones-futbol' ); ?></th>
-							<th><?php esc_html_e( 'Posición', 'inscripciones-futbol' ); ?></th>
-							<th><?php esc_html_e( 'Rol', 'inscripciones-futbol' ); ?></th>
 							<th><?php esc_html_e( 'Foto', 'inscripciones-futbol' ); ?></th>
 							<th><?php esc_html_e( 'DNI archivo', 'inscripciones-futbol' ); ?></th>
 						</tr>
@@ -506,8 +513,6 @@ final class IF_Admin {
 						<tr>
 							<td><?php echo esc_html( $j->nombreCompleto() ); ?></td>
 							<td><?php echo esc_html( $j->dni ); ?></td>
-							<td><?php echo esc_html( $j->posicion ); ?></td>
-							<td><?php echo esc_html( $j->rol ); ?></td>
 							<td><?php echo $j->foto ? '<img src="' . esc_url( $j->foto ) . '" style="width:40px;height:40px;object-fit:cover;border-radius:50%;" />' : '—'; ?></td>
 							<td><?php echo $j->archivoDni ? '<a href="' . esc_url( $j->archivoDni ) . '" target="_blank" rel="noopener">' . esc_html__( 'Ver', 'inscripciones-futbol' ) . '</a>' : '—'; ?></td>
 						</tr>

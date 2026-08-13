@@ -12,15 +12,6 @@ namespace IF\Core;
  */
 final class Jugador {
 
-	const POS_ARQUERO      = 'arquero';
-	const POS_DEFENSA      = 'defensa';
-	const POS_MEDIOCAMPO   = 'mediocampista';
-	const POS_DELANTERO    = 'delantero';
-
-	const ROL_TITULAR      = 'titular';
-	const ROL_SUPLENTE     = 'suplente';
-	const ROL_CAPITAN      = 'capitan';
-
 	/** @var int */
 	public $id = 0;
 
@@ -42,44 +33,11 @@ final class Jugador {
 	/** @var string URL de la foto del jugador */
 	public $foto = '';
 
-	/** @var string Posición: arquero, defensa, mediocampista, delantero */
-	public $posicion = '';
-
-	/** @var string Rol: titular, suplente, capitan */
-	public $rol = '';
-
 	/**
 	 * @return string
 	 */
 	public function nombreCompleto() {
 		return trim( $this->nombre . ' ' . $this->apellido );
-	}
-
-	/**
-	 * Etiquetas de posiciones.
-	 *
-	 * @return array
-	 */
-	public static function posiciones() {
-		return array(
-			self::POS_ARQUERO    => 'Arquero',
-			self::POS_DEFENSA    => 'Defensa',
-			self::POS_MEDIOCAMPO => 'Mediocampista',
-			self::POS_DELANTERO  => 'Delantero',
-		);
-	}
-
-	/**
-	 * Etiquetas de roles.
-	 *
-	 * @return array
-	 */
-	public static function roles() {
-		return array(
-			self::ROL_TITULAR  => 'Titular',
-			self::ROL_SUPLENTE => 'Suplente',
-			self::ROL_CAPITAN  => 'Capitán',
-		);
 	}
 
 	/**
@@ -94,8 +52,6 @@ final class Jugador {
 			'dni'        => $this->dni,
 			'archivoDni' => $this->archivoDni,
 			'foto'       => $this->foto,
-			'posicion'   => $this->posicion,
-			'rol'        => $this->rol,
 		);
 	}
 
@@ -112,8 +68,6 @@ final class Jugador {
 		$j->dni           = isset( $datos['dni'] ) ? (string) $datos['dni'] : '';
 		$j->archivoDni    = isset( $datos['archivoDni'] ) ? (string) $datos['archivoDni'] : '';
 		$j->foto          = isset( $datos['foto'] ) ? (string) $datos['foto'] : '';
-		$j->posicion      = isset( $datos['posicion'] ) ? (string) $datos['posicion'] : '';
-		$j->rol           = isset( $datos['rol'] ) ? (string) $datos['rol'] : '';
 		return $j;
 	}
 }

@@ -258,8 +258,6 @@ final class InscripcionService {
 		$jugador->dni        = $dni;
 		$jugador->archivoDni = isset( $datos['archivoDni'] ) ? (string) $datos['archivoDni'] : '';
 		$jugador->foto       = isset( $datos['foto'] ) ? (string) $datos['foto'] : '';
-		$jugador->posicion   = isset( $datos['posicion'] ) ? (string) $datos['posicion'] : '';
-		$jugador->rol        = isset( $datos['rol'] ) ? (string) $datos['rol'] : '';
 		$id = $this->store->crearJugador( $jugador );
 		return Resultado::exito( array( 'jugadorId' => $id ) );
 	}
@@ -290,12 +288,6 @@ final class InscripcionService {
 		}
 		if ( isset( $datos['foto'] ) && $datos['foto'] ) {
 			$jugador->foto = (string) $datos['foto'];
-		}
-		if ( isset( $datos['posicion'] ) ) {
-			$jugador->posicion = (string) $datos['posicion'];
-		}
-		if ( isset( $datos['rol'] ) ) {
-			$jugador->rol = (string) $datos['rol'];
 		}
 		$this->store->actualizarJugador( $jugador );
 		return Resultado::exito();
@@ -380,8 +372,6 @@ final class InscripcionService {
 			'delegado_tel' => $delegado ? $delegado->telefono : '',
 			'jugador'      => $jugador ? $jugador->nombreCompleto() : '',
 			'jugador_dni'  => $jugador ? $jugador->dni : '',
-			'posicion'     => $jugador && $jugador->posicion ? ( Jugador::posiciones()[ $jugador->posicion ] ?? $jugador->posicion ) : '',
-			'rol'          => $jugador && $jugador->rol ? ( Jugador::roles()[ $jugador->rol ] ?? $jugador->rol ) : '',
 			'archivo'      => $jugador ? $jugador->archivoDni : '',
 		);
 	}

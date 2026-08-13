@@ -30,8 +30,6 @@ final class Exportador {
 			'delegado_tel' => 'Teléfono',
 			'jugador'      => 'Jugador',
 			'jugador_dni'  => 'DNI Jugador',
-			'posicion'     => 'Posición',
-			'rol'          => 'Rol',
 			'archivo'      => 'Archivo DNI',
 		);
 	}

@@ -299,8 +299,6 @@ class WpInscripcionStore implements InscripcionStore {
 		update_post_meta( $jugador->id, '_if_dni', $jugador->dni );
 		update_post_meta( $jugador->id, '_if_dni_archivo', $jugador->archivoDni );
 		update_post_meta( $jugador->id, '_if_foto', $jugador->foto );
-		update_post_meta( $jugador->id, '_if_posicion', $jugador->posicion );
-		update_post_meta( $jugador->id, '_if_rol', $jugador->rol );
 	}
 
 	/**
@@ -323,8 +321,6 @@ class WpInscripcionStore implements InscripcionStore {
 		$j->dni         = (string) get_post_meta( $post->ID, '_if_dni', true );
 		$j->archivoDni  = (string) get_post_meta( $post->ID, '_if_dni_archivo', true );
 		$j->foto        = (string) get_post_meta( $post->ID, '_if_foto', true );
-		$j->posicion    = (string) get_post_meta( $post->ID, '_if_posicion', true );
-		$j->rol         = (string) get_post_meta( $post->ID, '_if_rol', true );
 
 		// Migración: título "Nombre Apellido" de la versión anterior.
 		if ( ! $j->nombre && ! $j->apellido && $post->post_title ) {

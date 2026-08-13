@@ -254,12 +254,6 @@ final class IF_Shortcodes {
 		<p><label><?php esc_html_e( 'Apellido', 'inscripciones-futbol' ); ?> *</label><input type="text" name="if_jugador_apellido" required /></p>
 		</div>
 		<p><label><?php esc_html_e( 'DNI', 'inscripciones-futbol' ); ?> *</label><input type="text" name="if_jugador_dni" required /></p>
-		<div class="if-row">
-		<p><label><?php esc_html_e( 'Posición', 'inscripciones-futbol' ); ?></label>
-		<select name="if_jugador_posicion"><option value=""><?php esc_html_e( '—', 'inscripciones-futbol' ); ?></option><?php foreach ( Jugador::posiciones() as $k => $v ) { echo '<option value="' . esc_attr( $k ) . '">' . esc_html( $v ) . '</option>'; } ?></select></p>
-		<p><label><?php esc_html_e( 'Rol', 'inscripciones-futbol' ); ?></label>
-		<select name="if_jugador_rol"><option value=""><?php esc_html_e( '—', 'inscripciones-futbol' ); ?></option><?php foreach ( Jugador::roles() as $k => $v ) { echo '<option value="' . esc_attr( $k ) . '">' . esc_html( $v ) . '</option>'; } ?></select></p>
-		</div>
 		<p><label><?php esc_html_e( 'Foto del jugador', 'inscripciones-futbol' ); ?></label><input type="file" name="if_jugador_foto" accept="image/*" /></p>
 		<p><label><?php esc_html_e( 'Fotografía / archivo del DNI', 'inscripciones-futbol' ); ?></label><input type="file" name="if_dni_archivo" accept="image/*,.pdf" /></p>
 		<?php wp_nonce_field( 'if_jugador_nuevo', 'if_jugador_nuevo_nonce' ); ?>
@@ -281,13 +275,7 @@ final class IF_Shortcodes {
 			echo '<div class="if-player-data">';
 				echo '<strong>' . esc_html( $j->nombreCompleto() ) . '</strong>';
 				echo '<span class="if-player-dni">DNI ' . esc_html( $j->dni ) . '</span>';
-				if ( $j->posicion && isset( Jugador::posiciones()[ $j->posicion ] ) ) {
-					echo '<span class="if-player-pos">' . esc_html( Jugador::posiciones()[ $j->posicion ] ) . '</span>';
-				}
-				if ( $j->rol && isset( Jugador::roles()[ $j->rol ] ) ) {
-					echo '<span class="if-player-rol if-rol-' . esc_attr( $j->rol ) . '">' . esc_html( Jugador::roles()[ $j->rol ] ) . '</span>';
-				}
-				if ( $j->archivoDni ) {
+			if ( $j->archivoDni ) {
 					echo '<a class="if-player-file" href="' . esc_url( $j->archivoDni ) . '" target="_blank" rel="noopener">' . esc_html__( 'Ver DNI', 'inscripciones-futbol' ) . '</a>';
 				}
 				echo '</div>';
@@ -303,15 +291,9 @@ final class IF_Shortcodes {
 				<p><label><?php esc_html_e( 'Nom.', 'inscripciones-futbol' ); ?></label><input type="text" name="if_jugador_nombre" value="<?php echo esc_attr( $j->nombre ); ?>" /></p>
 				<p><label><?php esc_html_e( 'Apell.', 'inscripciones-futbol' ); ?></label><input type="text" name="if_jugador_apellido" value="<?php echo esc_attr( $j->apellido ); ?>" /></p>
 				</div>
-				<p><label><?php esc_html_e( 'DNI', 'inscripciones-futbol' ); ?></label><input type="text" name="if_jugador_dni" value="<?php echo esc_attr( $j->dni ); ?>" /></p>
-				<div class="if-row">
-				<p><label><?php esc_html_e( 'Posición', 'inscripciones-futbol' ); ?></label>
-				<select name="if_jugador_posicion"><option value=""><?php esc_html_e( '—', 'inscripciones-futbol' ); ?></option><?php foreach ( Jugador::posiciones() as $k => $v ) { echo '<option value="' . esc_attr( $k ) . '"' . selected( $j->posicion, $k, false ) . '>' . esc_html( $v ) . '</option>'; } ?></select></p>
-				<p><label><?php esc_html_e( 'Rol', 'inscripciones-futbol' ); ?></label>
-				<select name="if_jugador_rol"><option value=""><?php esc_html_e( '—', 'inscripciones-futbol' ); ?></option><?php foreach ( Jugador::roles() as $k => $v ) { echo '<option value="' . esc_attr( $k ) . '"' . selected( $j->rol, $k, false ) . '>' . esc_html( $v ) . '</option>'; } ?></select></p>
-				</div>
-				<p><label><?php esc_html_e( 'Foto del jugador', 'inscripciones-futbol' ); ?></label><input type="file" name="if_jugador_foto" accept="image/*" /></p>
-				<p><label><?php esc_html_e( 'Archivo DNI', 'inscripciones-futbol' ); ?></label><input type="file" name="if_dni_archivo" accept="image/*,.pdf" /></p>
+<p><label><?php esc_html_e( 'DNI', 'inscripciones-futbol' ); ?></label><input type="text" name="if_jugador_dni" value="<?php echo esc_attr( $j->dni ); ?>" /></p>
+			<p><label><?php esc_html_e( 'Foto del jugador', 'inscripciones-futbol' ); ?></label><input type="file" name="if_jugador_foto" accept="image/*" /></p>
+			<p><label><?php esc_html_e( 'Archivo DNI', 'inscripciones-futbol' ); ?></label><input type="file" name="if_dni_archivo" accept="image/*,.pdf" /></p>
 				<?php wp_nonce_field( 'if_jugador_editar', 'if_jugador_editar_nonce' ); ?>
 				<p><button type="submit" name="if_jugador_editar_submit" class="if-btn"><?php esc_html_e( 'Guardar', 'inscripciones-futbol' ); ?></button></p>
 				<?php
@@ -558,8 +540,6 @@ final class IF_Shortcodes {
 				'dni'        => isset( $_POST['if_jugador_dni'] ) ? sanitize_text_field( wp_unslash( $_POST['if_jugador_dni'] ) ) : '',
 				'archivoDni' => $archivo ? $archivo : '',
 				'foto'       => $foto ? $foto : '',
-				'posicion'   => isset( $_POST['if_jugador_posicion'] ) ? sanitize_key( wp_unslash( $_POST['if_jugador_posicion'] ) ) : '',
-				'rol'        => isset( $_POST['if_jugador_rol'] ) ? sanitize_key( wp_unslash( $_POST['if_jugador_rol'] ) ) : '',
 			)
 		);
 		self::redirigir( $resultado->ok ? 'Jugador agregado.' : $resultado->errores, $resultado->ok ? 'ok' : 'error' );
@@ -583,8 +563,6 @@ final class IF_Shortcodes {
 				'dni'        => isset( $_POST['if_jugador_dni'] ) ? sanitize_text_field( wp_unslash( $_POST['if_jugador_dni'] ) ) : '',
 				'archivoDni' => $archivo ? $archivo : '',
 				'foto'       => $foto ? $foto : '',
-				'posicion'   => isset( $_POST['if_jugador_posicion'] ) ? sanitize_key( wp_unslash( $_POST['if_jugador_posicion'] ) ) : '',
-				'rol'        => isset( $_POST['if_jugador_rol'] ) ? sanitize_key( wp_unslash( $_POST['if_jugador_rol'] ) ) : '',
 			)
 		);
 		self::redirigir( $resultado->ok ? 'Jugador actualizado.' : $resultado->errores, $resultado->ok ? 'ok' : 'error' );

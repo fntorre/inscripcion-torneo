@@ -117,6 +117,48 @@ class IF_MercadoPago {
 	}
 
 	/**
+	 * Busca pagos aprobados en MP para un equipo (external_reference).
+	 *
+	 * @param int $equipo_id ID del equipo.
+	 * @return bool
+	 */
+	public static function equipo_pago_aprobado_mp( $equipo_id ) {
+		$token = self::get_access_token();
+		if ( ! $token ) {
+			return false;
+		}
+		$response = wp_remote_get(
+			add_query_arg(
+				array(
+					'external_reference' => (string) $equipo_id,
+					'status'             => 'approved',
+					'sort'               => 'date_created',
+					'criteria'           => 'desc',
+					'limit'              => 5,
+				),
+				self::API_URL . '/v1/payments/search'
+			),
+			array(
+				'headers' => array( 'Authorization' => 'Bearer ' . $token ),
+				'timeout' => 20,
+			)
+		);
+		if ( is_wp_error( $response ) ) {
+			return false;
+		}
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( empty( $data['results'] ) ) {
+			return false;
+		}
+		foreach ( $data['results'] as $pago ) {
+			if ( isset( $pago['status'] ) && 'approved' === $pago['status'] ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Traduce estado MP a estado interno.
 	 *
 	 * @param string $status Estado MP.

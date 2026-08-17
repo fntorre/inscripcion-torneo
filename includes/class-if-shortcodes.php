@@ -106,6 +106,8 @@ final class IF_Shortcodes {
 			return ob_get_clean();
 		}
 
+		self::sincronizar_estado_pago( $equipo );
+
 		$paso = Flujo::pasoActual( $delegado, $equipo );
 		self::render_barra( $paso );
 
@@ -174,6 +176,27 @@ final class IF_Shortcodes {
 		</form>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Reconciliar el estado de pago con Mercado Pago.
+	 *
+	 * Si el equipo figura como pendiente/rechazado pero Mercado Pago confirma
+	 * que el pago fue aprobado, se marca como activo para habilitar la carga
+	 * de jugadores. Evita que el delegado quede atascado en "pendiente de pago"
+	 * cuando el redirect de MP no llega (p. ej. pago con PIX/offline o sesión).
+	 *
+	 * @param IF\Core\Equipo $equipo Equipo (se actualiza en memoria).
+	 */
+	private static function sincronizar_estado_pago( $equipo ) {
+		if ( Estado::permiteCargarJugadores( $equipo->estado ) || Estado::BLOQUEADA === $equipo->estado ) {
+			return;
+		}
+		if ( ! IF_MercadoPago::equipo_pago_aprobado_mp( $equipo->id ) ) {
+			return;
+		}
+		if_set_equipo_pago_estado( $equipo->id, 'aprobado' );
+		$equipo->estado = Estado::ACTIVA;
 	}
 
 	/**

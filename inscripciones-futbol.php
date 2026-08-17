@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'IF_VERSION', '2.0.0' );
+define( 'IF_VERSION', '2.1.0' );
 define( 'IF_PLUGIN_FILE', __FILE__ );
 define( 'IF_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'IF_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

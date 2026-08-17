@@ -1,79 +1,85 @@
 /* ============================================================
-   Inscripciones Futbol — Estilos del frontend
+   Inscripciones Futbol — Estilos del frontend (Dark)
+   Paleta: fondo negro, acentos/rojo, textos blancos
    ============================================================ */
 
 :root {
-	/* Primary */
-	--if-primary-100: #ECF1FE;
-	--if-primary-200: #D8E4FC;
-	--if-primary-300: #C5D6FB;
-	--if-primary-400: #91B4F4;
-	--if-primary:     #3B70F7;
-	--if-primary-600: #3564D9;
-	--if-primary-700: #3159C1;
-	--if-primary-800: #2A4EAA;
-	--if-primary-900: #244790;
+	/* Rojo (acentos, botones, detalles) */
+	--if-red-100: #fde2e2;
+	--if-red-200: #fcc2c2;
+	--if-red-300: #f29595;
+	--if-red-400: #e05555;
+	--if-red-500: #c62828;
+	--if-red-600: #b02020;
+	--if-red-700: #8c1a1a;
+	--if-red-800: #6a1313;
 
-	/* Secondary */
-	--if-secondary-100: #E0E3D0;
-	--if-secondary-500: #5B6523;
+	/* Greys oscuros */
+	--if-grey-900: #000000;
+	--if-grey-800: #121212;
+	--if-grey-750: #1a1a1a;
+	--if-grey-700: #222222;
+	--if-grey-650: #2a2a2a;
+	--if-grey-600: #3a3a3a;
+	--if-grey-500: #5a5a5a;
+	--if-grey-400: #8a8a8a;
+	--if-grey-300: #b8b8b8;
+	--if-grey-200: #d0d0d0;
+	--if-grey-100: #e8e8e8;
 
-	/* Tertiary (teal) */
-	--if-tertiary-100: #E7FAF4;
-	--if-tertiary-500: #1E8C78;
+	/* Textos */
+	--if-text-primary:   #ffffff;
+	--if-text-secondary: #c0c0c0;
+	--if-text-muted:     #8a8a8a;
 
-	/* Success */
-	--if-success-100: #DDFBE8;
-	--if-success-500: #0DAA5C;
-	--if-success-700: #0B8374;
+	/* Fondos */
+	--if-bg-primary:   #121212;   /* fondo página */
+	--if-bg-secondary: #1a1a1a;
+	--if-bg-tertiary:  #222222;   /* cards / containers */
+	--if-bg-input:     #2a2a2a;
 
-	/* Warning */
-	--if-warning-100: #FDF6BB;
-	--if-warning-500: #FFB938;
-	--if-warning-700: #E5A432;
+	/* Bordes */
+	--if-border:       #3a3a3a;
+	--if-border-focus: var(--if-red-500);
 
-	/* Danger */
-	--if-danger-100: #FFD3C5;
-	--if-danger-500: #EF4440;
-	--if-danger-700: #DC3323;
+	/* Sombras (sutile sobre oscuro) */
+	--if-shadow:    0 1px 3px rgba(0,0,0,.40);
+	--if-shadow-md: 0 4px 12px rgba(0,0,0,.45);
+	--if-shadow-lg: 0 8px 24px rgba(0,0,0,.50);
 
-	/* Greys */
-	--if-grey-100: #F4F4F4;
-	--if-grey-200: #E5E5E5;
-	--if-grey-300: #D1D5C9;
-	--if-grey-400: #A3A3A3;
-	--if-grey-500: #858585;
-	--if-grey-600: #525252;
-	--if-grey-700: #333333;
-	--if-grey-800: #1F1F1F;
-	--if-grey-900: #171717;
+	/* Accent rojo (alias para mantener compatibilidad con selectores) */
+	--if-primary:     var(--if-red-500);
+	--if-primary-600: var(--if-red-600);
+	--if-primary-700: var(--if-red-700);
+	--if-primary-800: var(--if-red-800);
+	--if-primary-900: var(--if-red-800);
 
-	/* Background */
-	--if-bg-primary:   #EFF6FF;
-	--if-bg-secondary: #EFF1F0;
-	--if-bg-tertiary:  #EFF1F2;
-
-	/* Dark opacities */
-	--if-dark-05:  rgba(22,22,22,.05);
-	--if-dark-10:  rgba(22,22,22,.10);
-	--if-dark-20:  rgba(22,22,22,.20);
-	--if-dark-40:  rgba(22,22,22,.40);
-	--if-dark-80:  rgba(22,22,22,.80);
-
-	/* Shadows */
-	--if-shadow:    0 1px 3px rgba(22,22,22,.08);
-	--if-shadow-md: 0 4px 12px rgba(22,22,22,.12);
-	--if-shadow-lg: 0 8px 24px rgba(22,22,22,.16);
+	/* Escala de éxito/aviso sobre dark */
+	--if-success-500: #16a34a;
+	--if-success-100: rgba(22,163,74,.12);
+	--if-success-700: #15803e;
+	--if-warning-500: var(--if-red-500);
+	--if-danger-500:  var(--if-red-500);
+	--if-danger-700:  var(--if-red-700);
+	--if-danger-100:  rgba(220,38,38,.12);
 
 	--if-radius:  10px;
 	--if-transition: .2s ease;
 }
 
-/* ------- Reset básico dentro del plugin ------- */
+/* Fondo página y tipografía base */
+body,
+.if-fondo-pagina,
 .if-form *,
 .if-team *,
-.if-card * {
+.if-card *,
+.if-panel * {
 	box-sizing: border-box;
+}
+
+body {
+	background: var(--if-bg-primary);
+	color: var(--if-text-primary);
 }
 
 /* ------- Aviso / Mensajes ------- */
@@ -85,21 +91,23 @@
 	font-weight: 500;
 	line-height: 1.5;
 	border-left: 4px solid transparent;
+	color: var(--if-text-primary);
 }
 
 .if-notice-ok    { background: var(--if-success-100); border-left-color: var(--if-success-500); color: var(--if-success-700); }
 .if-notice-error { background: var(--if-danger-100);  border-left-color: var(--if-danger-500);  color: var(--if-danger-700); }
-.if-notice-info  { background: var(--if-primary-100); border-left-color: var(--if-primary);  color: var(--if-primary-800); }
+.if-notice-info  { background: rgba(22,22,22,.30); border-left-color: var(--if-red-500); color: var(--if-text-primary); }
 
 /* ------- Formularios ------- */
 .if-form {
-	background: #fff;
-	border: 1px solid var(--if-grey-200);
+	background: var(--if-bg-tertiary);
+	border: 1px solid var(--if-border);
 	border-radius: var(--if-radius);
 	padding: 24px;
 	margin: 15px 0;
 	max-width: 560px;
 	box-shadow: var(--if-shadow);
+	color: var(--if-text-primary);
 }
 
 .if-form p { margin: 0 0 14px; }
@@ -110,7 +118,7 @@
 	font-size: 13px;
 	text-transform: uppercase;
 	letter-spacing: .04em;
-	color: var(--if-grey-600);
+	color: var(--if-text-secondary);
 	margin-bottom: 5px;
 }
 
@@ -120,23 +128,25 @@
 .if-form input[type="password"],
 .if-form input[type="file"],
 .if-form input[type="url"],
-.if-form select {
+.if-form input[type="number"],
+.if-form select,
+.if-form textarea {
 	width: 100%;
 	box-sizing: border-box;
 	padding: 10px 12px;
-	border: 1.5px solid var(--if-grey-200);
+	border: 1.5px solid var(--if-border);
 	border-radius: 8px;
 	font-size: 15px;
 	font-family: inherit;
-	color: var(--if-grey-900);
-	background: var(--if-bg-primary);
+	color: var(--if-text-primary);
+	background: var(--if-bg-input);
 	transition: border-color var(--if-transition), box-shadow var(--if-transition);
 	outline: none;
 }
 
 .if-form select {
 	appearance: none;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23475569' d='M1.4 0L6 4.6 10.6 0 12 1.4l-6 6-6-6z'/%3E%3C/svg%3E");
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23c0c0c0' d='M1.4 0L6 4.6 10.6 0 12 1.4l-6 6-6-6z'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
 	background-position: right 12px center;
 	padding-right: 36px;
@@ -144,10 +154,11 @@
 }
 
 .if-form input:focus,
-.if-form select:focus {
-	border-color: var(--if-primary);
-	box-shadow: 0 0 0 3px rgba(59,112,247,.12);
-	background-color: #fff;
+.if-form select:focus,
+.if-form textarea:focus {
+	border-color: var(--if-red-500);
+	box-shadow: 0 0 0 3px rgba(196,44,44,.16);
+	background-color: var(--if-bg-input);
 }
 
 .if-row {
@@ -166,8 +177,8 @@
 	align-items: center;
 	justify-content: center;
 	gap: 6px;
-	background: var(--if-primary);
-	color: #fff;
+	background: var(--if-red-500);
+	color: var(--if-text-primary);
 	border: none;
 	border-radius: 8px;
 	padding: 10px 20px;
@@ -178,22 +189,33 @@
 	text-decoration: none;
 	line-height: 1.4;
 	transition: background var(--if-transition), transform .1s ease, box-shadow var(--if-transition);
-	box-shadow: 0 1px 2px rgba(37,99,235,.2);
+	box-shadow: 0 1px 2px rgba(0,0,0,.40);
 }
 
-.if-btn:hover { background: var(--if-primary-600); color: #fff; box-shadow: 0 2px 6px rgba(59,112,247,.3); }
+.if-btn:hover { background: var(--if-red-600); color: var(--if-text-primary); box-shadow: 0 2px 6px rgba(0,0,0,.50); }
 .if-btn:active { transform: scale(.97); }
 
-.if-btn-danger { background: var(--if-danger-500); box-shadow: 0 1px 2px rgba(220,38,38,.2); }
-.if-btn-danger:hover { background: var(--if-danger-700); box-shadow: 0 2px 6px rgba(239,68,64,.3); }
+.if-btn-danger { background: var(--if-red-500); box-shadow: 0 1px 2px rgba(0,0,0,.40); }
+.if-btn-danger:hover { background: var(--if-red-700); box-shadow: 0 2px 6px rgba(0,0,0,.50); }
 
-.if-btn-mp { background: #009ee3; box-shadow: 0 1px 2px rgba(0,158,227,.2); }
-.if-btn-mp:hover { background: #0084c7; box-shadow: 0 2px 6px rgba(0,158,227,.3); }
+.if-btn-mp { background: var(--if-red-500); box-shadow: 0 1px 2px rgba(0,0,0,.40); }
+.if-btn-mp:hover { background: var(--if-red-600); box-shadow: 0 2px 6px rgba(0,0,0,.50); }
 
 .if-btn-sm {
 	padding: 7px 14px;
 	font-size: 13px;
 	border-radius: 6px;
+}
+
+/* Outlines / botones secundarios cuando existan */
+.if-btn-outline {
+	background: transparent;
+	border: 1.5px solid var(--if-red-500);
+	color: var(--if-red-500);
+}
+.if-btn-outline:hover {
+	background: var(--if-red-500);
+	color: var(--if-text-primary);
 }
 
 /* ------- Wizard / Barra de pasos ------- */
@@ -210,15 +232,16 @@
 .if-steps li {
 	flex: 1;
 	text-align: center;
-	background: var(--if-bg-primary);
+	background: var(--if-bg-tertiary);
 	border-radius: var(--if-radius);
 	padding: 12px 6px;
-	border: 1.5px solid var(--if-grey-200);
+	border: 1.5px solid var(--if-border);
 	transition: all var(--if-transition);
+	color: var(--if-text-secondary);
 }
 
-.if-steps li.done { background: var(--if-success-100); border-color: var(--if-success-500); }
-.if-steps li.current { background: var(--if-primary-100); border-color: var(--if-primary); box-shadow: 0 0 0 3px rgba(59,112,247,.1); }
+.if-steps li.done { background: rgba(196,44,44,.12); border-color: var(--if-red-500); color: var(--if-text-primary); }
+.if-steps li.current { background: rgba(196,44,44,.16); border-color: var(--if-red-500); box-shadow: 0 0 0 3px rgba(196,44,44,.14); color: var(--if-text-primary); }
 
 .if-step-num {
 	display: inline-flex;
@@ -227,30 +250,30 @@
 	width: 24px;
 	height: 24px;
 	border-radius: 50%;
-	background: var(--if-grey-400);
-	color: #fff;
+	background: var(--if-grey-500);
+	color: var(--if-text-primary);
 	font-weight: 700;
 	font-size: 12px;
 	margin-right: 5px;
 	transition: background var(--if-transition);
 }
 
-.if-steps li.done .if-step-num { background: var(--if-success-500); }
-.if-steps li.current .if-step-num { background: var(--if-primary); }
+.if-steps li.done .if-step-num { background: var(--if-red-500); color: var(--if-text-primary); }
+.if-steps li.current .if-step-num { background: var(--if-red-500); color: var(--if-text-primary); }
 
 .if-step-label {
 	font-weight: 600;
 	font-size: 12px;
 	text-transform: uppercase;
 	letter-spacing: .03em;
-	color: var(--if-grey-600);
+	color: var(--if-text-secondary);
 }
 
-.if-steps li.current .if-step-label { color: var(--if-primary); }
+.if-steps li.current .if-step-label { color: var(--if-red-500); }
 
 .if-progress {
 	height: 4px;
-	background: var(--if-grey-100);
+	background: var(--if-grey-700);
 	border-radius: 2px;
 	overflow: hidden;
 	margin-bottom: 20px;
@@ -258,27 +281,28 @@
 
 .if-progress-bar {
 	height: 100%;
-	background: linear-gradient(90deg, var(--if-success-500), var(--if-success-100));
+	background: linear-gradient(90deg, var(--if-red-500), var(--if-red-700));
 	border-radius: 2px;
 	transition: width .4s ease;
 }
 
 /* ------- Tarjetas ------- */
 .if-card {
-	background: #fff;
-	border: 1px solid var(--if-grey-200);
+	background: var(--if-bg-tertiary);
+	border: 1px solid var(--if-border);
 	border-radius: var(--if-radius);
 	padding: 24px;
 	margin: 16px 0;
 	box-shadow: var(--if-shadow);
+	color: var(--if-text-primary);
 }
 
 .if-card h3 {
 	margin: 0 0 14px;
 	font-size: 18px;
 	font-weight: 700;
-	color: var(--if-grey-900);
-	border-bottom: 2px solid var(--if-grey-100);
+	color: var(--if-text-primary);
+	border-bottom: 2px solid var(--if-grey-700);
 	padding-bottom: 10px;
 }
 
@@ -293,24 +317,24 @@
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: .04em;
-	color: #fff;
+	color: var(--if-text-primary);
 }
 
-.if-badge-pendiente { background: var(--if-warning-500); }
-.if-badge-activa    { background: var(--if-success-500); }
-.if-badge-rechazada { background: var(--if-danger-500); }
-.if-badge-bloqueada { background: var(--if-grey-600); }
+.if-badge-pendiente { background: var(--if-warning-500); color: var(--if-text-primary); }
+.if-badge-activa    { background: var(--if-success-500); color: var(--if-text-primary); }
+.if-badge-rechazada { background: var(--if-red-500); color: var(--if-text-primary); }
+.if-badge-bloqueada { background: var(--if-grey-600); color: var(--if-text-primary); }
 
 .if-estado { font-weight: 600; }
-.if-note { color: var(--if-grey-400); font-size: 13px; line-height: 1.5; }
+.if-note { color: var(--if-text-muted); font-size: 13px; line-height: 1.5; }
 
 .if-comprobante {
 	margin-top: 20px;
 	padding-top: 18px;
-	border-top: 2px solid var(--if-grey-100);
+	border-top: 2px solid var(--if-grey-700);
 }
 
-.if-comprobante h4 { margin: 0 0 10px; font-size: 15px; color: var(--if-grey-900); }
+.if-comprobante h4 { margin: 0 0 10px; font-size: 15px; color: var(--if-text-primary); }
 
 /* ------- Jugadores (lista legacy) ------- */
 .if-lista { margin-top: 14px; }
@@ -321,21 +345,22 @@
 	align-items: center;
 	gap: 12px;
 	flex-wrap: wrap;
-	border: 1px solid var(--if-grey-200);
+	border: 1px solid var(--if-border);
 	border-radius: var(--if-radius);
 	padding: 14px;
 	margin-bottom: 10px;
-	background: var(--if-bg-primary);
+	background: var(--if-bg-tertiary);
 	transition: box-shadow var(--if-transition);
+	color: var(--if-text-primary);
 }
 
-.if-jugador:hover { box-shadow: var(--if-shadow); }
+.if-jugador:hover { box-shadow: var(--if-shadow-md); }
 
 .if-jugador-info { flex: 1 1 240px; }
 .if-jugador-acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
 
 .if-descargas { margin-top: 20px; }
-.if-descargas span { font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .03em; color: var(--if-grey-600); }
+.if-descargas span { font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .03em; color: var(--if-text-muted); }
 .if-descargas .if-btn { margin-right: 6px; }
 
 /* ============================================================
@@ -343,32 +368,33 @@
    ============================================================ */
 
 .if-team {
-	background: #fff;
-	border: 1px solid var(--if-grey-200);
+	background: var(--if-bg-tertiary);
+	border: 1px solid var(--if-border);
 	border-radius: 14px;
 	padding: 0;
 	margin: 16px 0;
 	box-shadow: var(--if-shadow-md);
 	overflow: hidden;
+	color: var(--if-text-primary);
 }
 
-/* Cabecera con gradiente */
+/* Cabecera con gradiente negro/rojo */
 .if-team-header {
 	display: flex;
 	align-items: center;
 	gap: 16px;
 	flex-wrap: wrap;
 	padding: 24px 28px;
-	background: linear-gradient(135deg, var(--if-grey-900) 0%, var(--if-primary-900) 100%);
-	color: #fff;
+	background: linear-gradient(135deg, var(--if-red-800) 0%, var(--if-red-600) 100%);
+	color: var(--if-text-primary);
 }
 
 .if-team-crest {
 	width: 72px;
 	height: 72px;
 	border-radius: 16px;
-	background: rgba(255,255,255,.12);
-	color: #fff;
+	background: rgba(255,255,255,.08);
+	color: var(--if-text-primary);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -378,7 +404,7 @@
 	overflow: hidden;
 	flex-shrink: 0;
 	backdrop-filter: blur(4px);
-	border: 2px solid rgba(255,255,255,.15);
+	border: 2px solid rgba(255,255,255,.12);
 }
 
 .if-team-crest img {
@@ -394,7 +420,7 @@
 	margin: 0 0 8px;
 	font-size: 22px;
 	font-weight: 800;
-	color: #fff;
+	color: var(--if-text-primary);
 	letter-spacing: -.01em;
 }
 
@@ -405,10 +431,10 @@
 	letter-spacing: .06em;
 }
 
-.if-badge-pendiente { background: var(--if-warning-500); }
-.if-badge-activa    { background: var(--if-success-500); }
-.if-badge-rechazada { background: var(--if-danger-500); }
-.if-badge-bloqueada { background: rgba(255,255,255,.25); }
+.if-badge-pendiente { background: var(--if-warning-500); color: var(--if-text-primary); }
+.if-badge-activa    { background: var(--if-success-500); color: var(--if-text-primary); }
+.if-badge-rechazada { background: var(--if-red-500); color: var(--if-text-primary); }
+.if-badge-bloqueada { background: rgba(255,255,255,.18); color: var(--if-text-primary); }
 
 .if-team-count {
 	text-align: right;
@@ -422,7 +448,7 @@
 	display: block;
 	font-size: 32px;
 	font-weight: 800;
-	color: #fff;
+	color: var(--if-text-primary);
 	line-height: 1;
 	margin-bottom: 2px;
 }
@@ -434,21 +460,22 @@
 
 /* Escudo / Subir escudo */
 .if-escudo {
-	border: 1.5px dashed var(--if-grey-200);
+	border: 1.5px dashed var(--if-grey-600);
 	border-radius: var(--if-radius);
 	padding: 12px 16px;
 	margin-bottom: 16px;
-	background: var(--if-bg-primary);
+	background: var(--if-bg-tertiary);
 	transition: border-color var(--if-transition);
+	color: var(--if-text-primary);
 }
 
-.if-escudo:hover { border-color: var(--if-primary); }
+.if-escudo:hover { border-color: var(--if-red-500); }
 
 .if-escudo summary {
 	cursor: pointer;
 	font-weight: 600;
 	font-size: 13px;
-	color: var(--if-primary);
+	color: var(--if-red-500);
 	text-transform: uppercase;
 	letter-spacing: .03em;
 }
@@ -456,28 +483,30 @@
 .if-escudo .if-form {
 	margin: 12px 0 0;
 	max-width: none;
-	background: #fff;
+	background: var(--if-bg-tertiary);
 	box-shadow: none;
-	border: 1px solid var(--if-grey-200);
+	border: 1px solid var(--if-border);
+	color: var(--if-text-primary);
 }
 
 /* Agregar jugador */
 .if-add-player {
-	border: 1.5px dashed var(--if-grey-200);
+	border: 1.5px dashed var(--if-grey-600);
 	border-radius: var(--if-radius);
 	padding: 12px 16px;
 	margin-bottom: 18px;
-	background: var(--if-bg-primary);
+	background: var(--if-bg-tertiary);
 	transition: border-color var(--if-transition);
+	color: var(--if-text-primary);
 }
 
-.if-add-player:hover { border-color: var(--if-primary); }
+.if-add-player:hover { border-color: var(--if-red-500); }
 
 .if-add-player summary {
 	cursor: pointer;
 	font-weight: 600;
 	font-size: 13px;
-	color: var(--if-primary);
+	color: var(--if-red-500);
 	text-transform: uppercase;
 	letter-spacing: .03em;
 }
@@ -485,9 +514,10 @@
 .if-add-player .if-form {
 	margin: 12px 0 0;
 	max-width: none;
-	background: #fff;
+	background: var(--if-bg-tertiary);
 	box-shadow: none;
-	border: 1px solid var(--if-grey-200);
+	border: 1px solid var(--if-border);
+	color: var(--if-text-primary);
 }
 
 /* Grilla de jugadores */
@@ -501,12 +531,13 @@
 	display: flex;
 	align-items: flex-start;
 	gap: 12px;
-	border: 1px solid var(--if-grey-200);
+	border: 1px solid var(--if-border);
 	border-radius: var(--if-radius);
 	padding: 14px;
-	background: #fff;
+	background: var(--if-bg-tertiary);
 	transition: box-shadow var(--if-transition), transform .15s ease;
 	overflow: hidden;
+	color: var(--if-text-primary);
 }
 
 .if-player-card:hover {
@@ -518,8 +549,8 @@
 	width: 40px;
 	height: 40px;
 	border-radius: 12px;
-	background: linear-gradient(135deg, var(--if-success-500), var(--if-tertiary-500));
-	color: #fff;
+	background: var(--if-red-500);
+	color: var(--if-text-primary);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -551,12 +582,12 @@
 
 .if-player-data strong {
 	font-size: 14px;
-	color: var(--if-grey-900);
+	color: var(--if-text-primary);
 	line-height: 1.3;
 }
 
 .if-player-dni {
-	color: var(--if-grey-400);
+	color: var(--if-text-muted);
 	font-size: 12px;
 	font-weight: 500;
 	letter-spacing: .02em;
@@ -564,18 +595,18 @@
 
 .if-player-file {
 	font-size: 12px;
-	color: var(--if-primary);
+	color: var(--if-red-500);
 	text-decoration: none;
 	font-weight: 600;
 	margin-top: 3px;
 	transition: color var(--if-transition);
 }
 
-.if-player-file:hover { color: var(--if-primary-600); }
+.if-player-file:hover { color: var(--if-red-600); }
 
 .if-player-pos {
 	font-size: 12px;
-	color: var(--if-grey-400);
+	color: var(--if-text-muted);
 	font-weight: 500;
 	margin-top: 2px;
 }
@@ -589,12 +620,12 @@
 	padding: 2px 8px;
 	border-radius: 10px;
 	margin-top: 3px;
-	color: #fff;
+	color: var(--if-text-primary);
 }
 
-.if-rol-titular  { background: var(--if-primary); }
-.if-rol-suplente { background: var(--if-grey-400); }
-.if-rol-capitan  { background: var(--if-warning-500); }
+.if-rol-titular  { background: var(--if-red-500); }
+.if-rol-suplente { background: var(--if-grey-500); }
+.if-rol-capitan  { background: var(--if-red-600); }
 
 .if-player-actions {
 	display: flex;
@@ -609,9 +640,9 @@
 .if-edit-btn {
 	font-size: 12px;
 	padding: 4px 10px;
-	color: var(--if-primary);
+	color: var(--if-red-500);
 	background: none;
-	border: 1.5px solid var(--if-primary);
+	border: 1.5px solid var(--if-red-500);
 	border-radius: 6px;
 	cursor: pointer;
 	font-weight: 600;
@@ -620,8 +651,8 @@
 }
 
 .if-edit-btn:hover {
-	background: var(--if-primary);
-	color: #fff;
+	background: var(--if-red-500);
+	color: var(--if-text-primary);
 }
 
 /* ------- Modal editar (dialog) ------- */
@@ -629,15 +660,16 @@
 	border: none;
 	border-radius: 14px;
 	padding: 0;
-	box-shadow: 0 12px 48px rgba(0,0,0,.25);
+	box-shadow: 0 12px 48px rgba(0,0,0,.50);
 	max-width: 320px;
 	width: 90%;
 	max-height: 85vh;
 	overflow-y: auto;
+	color: var(--if-text-primary);
 }
 
 .if-edit-dialog::backdrop {
-	background: rgba(15,23,42,.4);
+	background: rgba(0,0,0,.55);
 	backdrop-filter: blur(2px);
 }
 
@@ -647,17 +679,19 @@
 	border: none;
 	box-shadow: none;
 	padding: 20px;
+	background: var(--if-bg-tertiary);
+	color: var(--if-text-primary);
 }
 
 .if-close-dialog {
 	position: absolute;
 	top: 10px;
 	right: 12px;
-	background: var(--if-grey-100);
+	background: var(--if-grey-600);
 	border: none;
 	font-size: 22px;
 	line-height: 1;
-	color: var(--if-grey-600);
+	color: var(--if-text-primary);
 	cursor: pointer;
 	width: 30px;
 	height: 30px;
@@ -670,8 +704,8 @@
 }
 
 .if-close-dialog:hover {
-	color: var(--if-danger-500);
-	background: var(--if-danger-100);
+	color: var(--if-text-primary);
+	background: var(--if-red-500);
 }
 
 .if-edit-dialog .if-form p {
@@ -681,17 +715,22 @@
 .if-edit-dialog .if-form label {
 	font-size: 10px;
 	margin-bottom: 2px;
+	color: var(--if-text-muted);
 }
 
 .if-edit-dialog .if-form input[type="text"],
 .if-edit-dialog .if-form select {
 	font-size: 12px;
 	padding: 5px 8px;
+	background: var(--if-bg-input);
+	border-color: var(--if-border);
+	color: var(--if-text-primary);
 }
 
 .if-edit-dialog .if-form input[type="file"] {
 	font-size: 11px;
 	padding: 4px;
+	color: var(--if-text-primary);
 }
 
 .if-edit-dialog .if-form .if-row {
@@ -725,7 +764,7 @@
 
 .if-team-empty {
 	text-align: center;
-	color: var(--if-grey-400);
+	color: var(--if-text-muted);
 	padding: 40px 24px;
 	font-size: 15px;
 }

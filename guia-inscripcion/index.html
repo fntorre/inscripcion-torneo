@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Guía de inscripción · Fútbol</title>
+	<meta name="description" content="Pasos para inscribirte como delegado, pagar la inscripción y cargar tu equipo y jugadores.">
+	<link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+	<!-- Cabecera -->
+	<header class="guia-header">
+		<div class="guia-container">
+			<p class="guia-badge">Temporada vigente</p>
+			<h1>Guía de inscripción</h1>
+			<p class="guia-sub">
+				Registrate como delegado, aboná la inscripción y cargá tu equipo y jugadores
+				en el sistema. Seguí los <strong>4 pasos</strong> en orden.
+			</p>
+
+			<!-- Barra de progreso -->
+			<div class="guia-progress" aria-hidden="true">
+				<div class="guia-progress-track">
+					<div class="guia-progress-fill" id="guiaProgressFill"></div>
+				</div>
+				<p class="guia-progress-text">Progreso: <span id="guiaProgressText">0</span>%</p>
+			</div>
+
+			<!-- Navegación de pasos -->
+			<nav class="guia-nav" aria-label="Pasos">
+				<a href="#paso-1" class="guia-nav-item">
+					<span class="guia-nav-num">1</span>
+					<span class="guia-nav-label">Registro</span>
+				</a>
+				<a href="#paso-2" class="guia-nav-item">
+					<span class="guia-nav-num">2</span>
+					<span class="guia-nav-label">Datos y equipo</span>
+				</a>
+				<a href="#paso-3" class="guia-nav-item">
+					<span class="guia-nav-num">3</span>
+					<span class="guia-nav-label">Pago</span>
+				</a>
+				<a href="#paso-4" class="guia-nav-item">
+					<span class="guia-nav-num">4</span>
+					<span class="guia-nav-label">Jugadores</span>
+				</a>
+				<a href="#faq" class="guia-nav-item guia-nav-faq">
+					<span class="guia-nav-label">FAQ</span>
+				</a>
+			</nav>
+		</div>
+	</header>
+
+	<main class="guia-container">
+
+		<!-- ============ PASO 1 · REGISTRO ============ -->
+		<section class="guia-paso" id="paso-1">
+			<div class="guia-paso-head">
+				<span class="guia-paso-num">1</span>
+				<div>
+					<h2>Registrarte como delegado</h2>
+					<p class="guia-paso-sub">Creás tu cuenta y el nombre de tu equipo en un solo formulario.</p>
+				</div>
+			</div>
+
+			<div class="guia-paso-body">
+				<div class="guia-col-texto">
+					<p>
+						Ingresá a la página de registro desde el sitio y completá el formulario
+						<b>Registro del delegado</b>.
+					</p>
+
+					<h3>Campos del formulario</h3>
+					<ul class="guia-lista">
+						<li><b>Nombre y apellido</b> del delegado.</li>
+						<li><b>DNI</b> (número de documento, sin puntos).</li>
+						<li><b>Teléfono</b> de contacto.</li>
+						<li><b>Correo electrónico</b> (será tu usuario para iniciar sesión).</li>
+						<li><b>Contraseña</b> de al menos 6 caracteres.</li>
+						<li><b>Nombre del equipo</b>, tal como querés que figure en el torneo.</li>
+					</ul>
+
+					<h3>Importante</h3>
+					<div class="guia-tip">
+						<p>
+							Al terminar quedás <b>logueado automáticamente</b> y te lleva directo al
+							panel de tu inscripción. No hace falta volver a iniciar sesión.
+						</p>
+						<p>
+							Si ya tenés una cuenta con ese correo, el sistema te lo va a avisar.
+							Usá otro correo o recuperá tu acceso.
+						</p>
+					</div>
+				</div>
+
+				<div class="guia-col-check">
+					<h3>Checklist</h3>
+					<ul class="guia-checklist" data-paso="1">
+						<li><label><input type="checkbox" data-check="reg-1"> Abrí la página de registro.</label></li>
+						<li><label><input type="checkbox" data-check="reg-2"> Completé mis datos personales (nombre, apellido, DNI, teléfono, correo).</label></li>
+						<li><label><input type="checkbox" data-check="reg-3"> Definí una contraseña segura (mínimo 6 caracteres).</label></li>
+						<li><label><input type="checkbox" data-check="reg-4"> Escribí el nombre de mi equipo.</label></li>
+						<li><label><input type="checkbox" data-check="reg-5"> Apreté <b>Registrarme</b> y quedé dentro del sistema.</label></li>
+					</ul>
+					<div class="guia-cta">
+						<a href="#" class="guia-btn" data-enlace="registro">Ir al registro</a>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- ============ PASO 2 · DATOS Y EQUIPO ============ -->
+		<section class="guia-paso" id="paso-2">
+			<div class="guia-paso-head">
+				<span class="guia-paso-num">2</span>
+				<div>
+					<h2>Completar tus datos y crear el equipo</h2>
+					<p class="guia-paso-sub">El panel te guía paso a paso con una barra de avance.</p>
+				</div>
+			</div>
+
+			<div class="guia-paso-body">
+				<div class="guia-col-texto">
+					<p>
+						En tu <b>panel de delegado</b> vas a ver una barra con 4 pasos:
+						<b>Delegado → Equipo → Pago → Jugadores</b>. Cada paso se va marcando
+						como completado a medida que avanzas.
+					</p>
+
+					<h3>Paso 2.a — Tus datos</h3>
+					<p>
+						Si tus datos aún no están cargados, el panel te muestra el formulario
+						<b>Paso 1 · Tus datos</b>. Revisá que nombre, apellido, DNI y teléfono
+						estén correctos y apretá <b>Guardar y continuar</b>.
+					</p>
+
+					<h3>Paso 2.b — Tu equipo</h3>
+					<p>
+						Después te pide el <b>nombre del equipo</b> (si no lo cargaste en el registro).
+						Escribilo y apretá <b>Crear equipo</b>. Una vez creado, pasás al paso de pago.
+					</p>
+
+					<div class="guia-tip">
+						<p>
+							El nombre del equipo lo podés <b>renombrar después</b> desde tu panel,
+							así que no te preocupes si querés cambiarlo más adelante.
+						</p>
+					</div>
+				</div>
+
+				<div class="guia-col-check">
+					<h3>Checklist</h3>
+					<ul class="guia-checklist" data-paso="2">
+						<li><label><input type="checkbox" data-check="datos-1"> Entré a mi panel de delegado.</label></li>
+						<li><label><input type="checkbox" data-check="datos-2"> Verifiqué mis datos personales.</label></li>
+						<li><label><input type="checkbox" data-check="datos-3"> Guardé y continué.</label></li>
+						<li><label><input type="checkbox" data-check="datos-4"> Creé mi equipo con su nombre.</label></li>
+						<li><label><input type="checkbox" data-check="datos-5"> El panel me muestra el paso de <b>Pago</b>.</label></li>
+					</ul>
+					<div class="guia-cta">
+						<a href="#" class="guia-btn" data-enlace="panel">Abrir mi panel</a>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- ============ PASO 3 · PAGO ============ -->
+		<section class="guia-paso" id="paso-3">
+			<div class="guia-paso-head">
+				<span class="guia-paso-num">3</span>
+				<div>
+					<h2>Pagar la inscripción</h2>
+					<p class="guia-paso-sub">El pago se procesa con Mercado Pago y lo confirma la organización.</p>
+				</div>
+			</div>
+
+			<div class="guia-paso-body">
+				<div class="guia-col-texto">
+					<p>
+						En el panel vas a ver el <b>monto de la inscripción</b> y un botón
+						<b>Pagar con Mercado Pago</b>. El sistema te redirige a Mercado Pago
+						para completar el pago de forma segura.
+					</p>
+
+					<h3>Estados posibles de tu inscripción</h3>
+					<ul class="guia-lista">
+						<li><span class="guia-pill pendiente">Pendiente de pago</span> Pagaste y estamos esperando confirmar.</li>
+						<li><span class="guia-pill aprobada">Aprobada</span> Pago confirmado. ¡Ya podés cargar jugadores!</li>
+						<li><span class="guia-pill rechazada">Pago rechazado</span> El pago no se pudo acreditar. Volvé a intentarlo.</li>
+						<li><span class="guia-pill bloqueada">Bloqueada</span> La inscripción fue bloqueada por la organización.</li>
+					</ul>
+
+					<h3>Qué pasa después de pagar</h3>
+					<ol class="guia-lista ordenada">
+						<li>Mercado Pago procesa el pago.</li>
+						<li>La organización <b>confirma la inscripción</b> (esto puede tardar un poco).</li>
+						<li>Cuando el estado cambia a <b>Aprobada</b>, se habilita la carga de jugadores.</li>
+					</ol>
+
+					<div class="guia-tip">
+						<p>
+							¿Tu pago aparece como aprobado en Mercado Pago pero el panel sigue en
+							<b>pendiente</b>? Esperá unos minutos y recargá la página. El sistema
+							revisa automáticamente el estado del pago.
+						</p>
+						<p>
+							Si el estado es <b>rechazado</b>, no se pierde el equipo: volvé a
+							intentar el pago desde tu panel.
+						</p>
+					</div>
+				</div>
+
+				<div class="guia-col-check">
+					<h3>Checklist</h3>
+					<ul class="guia-checklist" data-paso="3">
+						<li><label><input type="checkbox" data-check="pago-1"> Vi el monto de la inscripción en mi panel.</label></li>
+						<li><label><input type="checkbox" data-check="pago-2"> Completé el pago con Mercado Pago.</label></li>
+						<li><label><input type="checkbox" data-check="pago-3"> Volví al panel y recargué la página.</label></li>
+						<li><label><input type="checkbox" data-check="pago-4"> Mi inscripción figura como <span class="guia-pill aprobada">Aprobada</span>.</label></li>
+					</ul>
+					<div class="guia-cta">
+						<a href="#" class="guia-btn" data-enlace="panel">Abrir mi panel</a>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- ============ PASO 4 · JUGADORES ============ -->
+		<section class="guia-paso" id="paso-4">
+			<div class="guia-paso-head">
+				<span class="guia-paso-num">4</span>
+				<div>
+					<h2>Cargar tu equipo de jugadores</h2>
+					<p class="guia-paso-sub">Recién con la inscripción aprobada se habilita la carga.</p>
+				</div>
+			</div>
+
+			<div class="guia-paso-body">
+				<div class="guia-col-texto">
+					<p>
+						Cuando el estado de tu inscripción es <b>Aprobada</b>, en el panel se
+						habilita la sección de jugadores. Desde ahí podés:
+					</p>
+
+					<h3>Lo que podés hacer</h3>
+					<ul class="guia-lista">
+						<li><b>Subir el escudo</b> de tu equipo (JPG, PNG o WebP).</li>
+						<li><b>Agregar jugadores</b> con nombre, apellido, DNI y opcionalmente
+							<b>foto</b> y <b>archivo del DNI</b> (imagen o PDF).</li>
+						<li><b>Editar</b> datos de un jugador o <b>reemplazar</b> su foto/archivo.</li>
+						<li><b>Eliminar</b> jugadores cargados por error.</li>
+						<li><b>Descargar el listado</b> en CSV o Excel desde tu panel.</li>
+					</ul>
+
+					<h3>Consejos</h3>
+					<div class="guia-tip">
+						<p>
+							Cargá el <b>DNI correcto</b> de cada jugador: después se usa para
+							validar la lista. Revisá los datos antes de confirmar.
+						</p>
+						<p>
+							El archivo del DNI (foto o PDF) es opcional pero recomendado para
+							agilizar la validación de la organización.
+						</p>
+					</div>
+				</div>
+
+				<div class="guia-col-check">
+					<h3>Checklist</h3>
+					<ul class="guia-checklist" data-paso="4">
+						<li><label><input type="checkbox" data-check="jug-1"> Mi inscripción está <span class="guia-pill aprobada">Aprobada</span>.</label></li>
+						<li><label><input type="checkbox" data-check="jug-2"> Subí el escudo de mi equipo (opcional).</label></li>
+						<li><label><input type="checkbox" data-check="jug-3"> Cargué todos los jugadores con nombre, apellido y DNI.</label></li>
+						<li><label><input type="checkbox" data-check="jug-4"> Adjunté foto y/o archivo de DNI de cada jugador.</label></li>
+						<li><label><input type="checkbox" data-check="jug-5"> Descargué el listado para verificar que esté completo.</label></li>
+					</ul>
+					<div class="guia-cta">
+						<a href="#" class="guia-btn" data-enlace="panel">Abrir mi panel</a>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- ============ FAQ ============ -->
+		<section class="guia-faq" id="faq">
+			<h2>Preguntas frecuentes</h2>
+
+			<details class="guia-faq-item">
+				<summary>¿Necesito crear una cuenta por cada jugador?</summary>
+				<p>No. La cuenta la crea únicamente el <b>delegado</b>. Los jugadores los cargás vos desde tu panel con sus datos (nombre, apellido y DNI).</p>
+			</details>
+
+			<details class="guia-faq-item">
+				<summary>¿Puedo cambiar el nombre del equipo después de registrarme?</summary>
+				<p>Sí. Desde tu panel podés renombrar el equipo cuando quieras.</p>
+			</details>
+
+			<details class="guia-faq-item">
+				<summary>¿Cuándo se habilita la carga de jugadores?</summary>
+				<p>Solo cuando la organización <b>aprueba el pago</b> y tu inscripción pasa al estado <b>Aprobada</b>.</p>
+			</details>
+
+			<details class="guia-faq-item">
+				<summary>Mi pago figura como "pendiente" hace mucho. ¿Qué hago?</summary>
+				<p>Recargá tu panel (el sistema revisa automáticamente el estado del pago en Mercado Pago). Si sigue pendiente, contactate con la organización.</p>
+			</details>
+
+			<details class="guia-faq-item">
+				<summary>¿Puedo agregar jugadores después de cargar la lista?</summary>
+				<p>Sí. Mientras tu inscripción siga habilitada podés agregar, editar o eliminar jugadores en cualquier momento.</p>
+			</details>
+
+			<details class="guia-faq-item">
+				<summary>¿Qué necesito para iniciar sesión otra vez?</summary>
+				<p>Tu <b>correo electrónico</b> y la <b>contraseña</b> que elegiste en el registro.</p>
+			</details>
+		</section>
+
+		<!-- Cierre -->
+		<section class="guia-cierre">
+			<h2>¡Listo!</h2>
+			<p>
+				Con estos 4 pasos completos tu equipo queda inscripto y listo para el torneo.
+				Si tenés dudas, contactate con la organización.
+			</p>
+			<a href="#" class="guia-btn" data-enlace="registro">Registrarme ahora</a>
+		</section>
+
+	</main>
+
+	<footer class="guia-footer">
+		<div class="guia-container">
+			<p>Guía de inscripción · Torneo de fútbol</p>
+			<p class="guia-footer-note">Los pasos y montos pueden variar según la temporada. Consultá siempre con la organización.</p>
+		</div>
+	</footer>
+
+	<script src="js/guia.js"></script>
+</body>
+</html>

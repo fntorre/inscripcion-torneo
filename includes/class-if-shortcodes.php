@@ -407,7 +407,7 @@ final class IF_Shortcodes {
 	 * Registro de delegado.
 	 */
 	private static function procesar_registro() {
-		check_admin_referer( 'if_registro', 'if_registro_nonce' );
+		self::verificar_nonce( 'if_registro', 'if_registro_nonce' );
 		$resultado = IF_App::servicio()->registrarDelegado(
 			array(
 				'nombre'       => isset( $_POST['if_nombre'] ) ? sanitize_text_field( wp_unslash( $_POST['if_nombre'] ) ) : '',
@@ -437,7 +437,7 @@ final class IF_Shortcodes {
 	 */
 	private static function procesar_datos() {
 		self::exigir_delegado();
-		check_admin_referer( 'if_datos', 'if_datos_nonce' );
+		self::verificar_nonce( 'if_datos', 'if_datos_nonce' );
 		$resultado = IF_App::servicio()->actualizarDatosDelegado(
 			get_current_user_id(),
 			array(
@@ -455,7 +455,7 @@ final class IF_Shortcodes {
 	 */
 	private static function procesar_crear_equipo() {
 		self::exigir_delegado();
-		check_admin_referer( 'if_crear_equipo', 'if_crear_equipo_nonce' );
+		self::verificar_nonce( 'if_crear_equipo', 'if_crear_equipo_nonce' );
 		$nombre    = isset( $_POST['if_equipo_nombre'] ) ? sanitize_text_field( wp_unslash( $_POST['if_equipo_nombre'] ) ) : '';
 		$resultado = IF_App::servicio()->crearEquipo( get_current_user_id(), $nombre );
 		self::redirigir( $resultado->ok ? 'Equipo creado. Ahora aboná la inscripción.' : $resultado->errores, $resultado->ok ? 'ok' : 'error' );
@@ -466,7 +466,7 @@ final class IF_Shortcodes {
 	 */
 	private static function procesar_escudo() {
 		self::exigir_delegado();
-		check_admin_referer( 'if_escudo', 'if_escudo_nonce' );
+		self::verificar_nonce( 'if_escudo', 'if_escudo_nonce' );
 		$archivo   = self::subir_archivo( 'if_escudo' );
 		$resultado = IF_App::servicio()->subirEscudo( get_current_user_id(), $archivo ? $archivo : '' );
 		self::redirigir( $resultado->ok ? 'Escudo actualizado.' : $resultado->errores, $resultado->ok ? 'ok' : 'error' );
@@ -477,7 +477,7 @@ final class IF_Shortcodes {
 	 */
 	private static function procesar_comprobante() {
 		self::exigir_delegado();
-		check_admin_referer( 'if_comprobante', 'if_comprobante_nonce' );
+		self::verificar_nonce( 'if_comprobante', 'if_comprobante_nonce' );
 		$archivo   = self::subir_archivo( 'if_comprobante' );
 		$resultado = IF_App::servicio()->adjuntarComprobante( get_current_user_id(), $archivo ? $archivo : '' );
 		self::redirigir( $resultado->ok ? 'Comprobante enviado. Queda en revisión.' : $resultado->errores, $resultado->ok ? 'ok' : 'error' );
@@ -488,7 +488,7 @@ final class IF_Shortcodes {
 	 */
 	private static function procesar_pago() {
 		self::exigir_delegado();
-		check_admin_referer( 'if_crear_pago', 'if_crear_pago_nonce' );
+		self::verificar_nonce( 'if_crear_pago', 'if_crear_pago_nonce' );
 
 		$equipo_id = isset( $_POST['if_equipo_id'] ) ? intval( $_POST['if_equipo_id'] ) : 0;
 		$equipo    = get_post( $equipo_id );
@@ -551,7 +551,7 @@ final class IF_Shortcodes {
 	 */
 	private static function procesar_jugador_nuevo() {
 		self::exigir_delegado();
-		check_admin_referer( 'if_jugador_nuevo', 'if_jugador_nuevo_nonce' );
+		self::verificar_nonce( 'if_jugador_nuevo', 'if_jugador_nuevo_nonce' );
 		$equipo_id = self::equipo_del_delegado();
 		$archivo   = self::subir_archivo( 'if_dni_archivo' );
 		$foto      = self::subir_archivo( 'if_jugador_foto' );
@@ -573,7 +573,7 @@ final class IF_Shortcodes {
 	 */
 	private static function procesar_jugador_editar() {
 		self::exigir_delegado();
-		check_admin_referer( 'if_jugador_editar', 'if_jugador_editar_nonce' );
+		self::verificar_nonce( 'if_jugador_editar', 'if_jugador_editar_nonce' );
 		$equipo_id = self::equipo_del_delegado();
 		$jugador   = self::jugador_del_equipo( $equipo_id, isset( $_POST['if_jugador_id'] ) ? intval( $_POST['if_jugador_id'] ) : 0 );
 		$archivo   = self::subir_archivo( 'if_dni_archivo' );
@@ -596,7 +596,7 @@ final class IF_Shortcodes {
 	 */
 	private static function procesar_jugador_eliminar() {
 		self::exigir_delegado();
-		check_admin_referer( 'if_jugador_eliminar', 'if_jugador_eliminar_nonce' );
+		self::verificar_nonce( 'if_jugador_eliminar', 'if_jugador_eliminar_nonce' );
 		$equipo_id = self::equipo_del_delegado();
 		$jugador   = self::jugador_del_equipo( $equipo_id, isset( $_POST['if_jugador_id'] ) ? intval( $_POST['if_jugador_id'] ) : 0 );
 		$resultado = IF_App::servicio()->eliminarJugador( $jugador );
@@ -604,6 +604,23 @@ final class IF_Shortcodes {
 	}
 
 	// =========================== Utilidades ================================
+
+	/**
+	 * Verifica el nonce del formulario.
+	 *
+	 * Si falla, redirige a la misma pantalla con un mensaje amigable
+	 * en lugar de la pantalla de error de WordPress
+	 * ("El enlace que seguiste ya expiró").
+	 *
+	 * @param string $accion Acción del nonce.
+	 * @param string $campo  Campo del formulario.
+	 */
+	private static function verificar_nonce( $accion, $campo ) {
+		$valor = isset( $_REQUEST[ $campo ] ) ? (string) wp_unslash( $_REQUEST[ $campo ] ) : '';
+		if ( ! wp_verify_nonce( $valor, $accion ) ) {
+			self::redirigir( 'Tu sesión expiró. Volvé a cargar la página e intentá de nuevo.', 'error' );
+		}
+	}
 
 	/**
 	 * Verifica sesión de delegado.

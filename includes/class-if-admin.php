@@ -433,6 +433,109 @@ final class IF_Admin {
 		$delegado = $store->obtenerDelegado( $equipo_o->delegadoId );
 		$jugadores = IF_App::servicio()->jugadoresDe( $equipo_id );
 
+		// Edición de equipo, escudo y jugadores desde el admin (POST).
+		if ( isset( $_POST['if_equipo_guardar'] ) ) {
+			check_admin_referer( 'if_admin_equipo', 'if_admin_equipo_nonce' );
+			$datos  = array( 'nombre' => sanitize_text_field( wp_unslash( $_POST['if_equipo_nombre'] ) ) );
+			$escudo = self::subir_archivo_admin(
+				'if_escudo',
+				array(
+					'jpg|jpeg' => 'image/jpeg',
+					'png'      => 'image/png',
+					'webp'     => 'image/webp',
+					'gif'      => 'image/gif',
+				)
+			);
+			$ok = true;
+			if ( is_wp_error( $escudo ) ) {
+				$msg = $escudo->get_error_message();
+				$ok  = false;
+			} else {
+				if ( $escudo ) {
+					$datos['escudo'] = $escudo;
+				}
+				$r   = IF_App::servicio()->actualizarEquipoDatos( $equipo_id, $datos );
+				$ok  = $r->ok;
+				$msg = $r->ok ? __( 'Equipo actualizado.', 'inscripciones-futbol' ) : $r->primerError();
+			}
+			wp_safe_redirect( add_query_arg( array( 'if_msg' => rawurlencode( $msg ), 'if_ok' => $ok ? '1' : '0' ), admin_url( 'admin.php?page=if-equipo-detalle&equipo=' . $equipo_id ) ) );
+			exit;
+		}
+
+		if ( isset( $_POST['if_jugador_nuevo'] ) ) {
+			check_admin_referer( 'if_admin_jugador_nuevo', 'if_admin_jugador_nuevo_nonce' );
+			$archivo = self::subir_archivo_admin(
+				'if_dni_archivo',
+				array(
+					'jpg|jpeg' => 'image/jpeg',
+					'png'      => 'image/png',
+					'webp'     => 'image/webp',
+					'gif'      => 'image/gif',
+					'pdf'      => 'application/pdf',
+				)
+			);
+			$datos = array(
+				'nombre'   => sanitize_text_field( wp_unslash( $_POST['if_jugador_nombre'] ) ),
+				'apellido' => sanitize_text_field( wp_unslash( $_POST['if_jugador_apellido'] ) ),
+				'dni'      => sanitize_text_field( wp_unslash( $_POST['if_jugador_dni'] ) ),
+			);
+			$ok = true;
+			if ( is_wp_error( $archivo ) ) {
+				$msg = $archivo->get_error_message();
+				$ok  = false;
+			} else {
+				if ( $archivo ) {
+					$datos['archivoDni'] = $archivo;
+				}
+				$r   = IF_App::servicio()->agregarJugadorAdmin( $equipo_id, $datos );
+				$ok  = $r->ok;
+				$msg = $r->ok ? __( 'Jugador agregado.', 'inscripciones-futbol' ) : $r->primerError();
+			}
+			wp_safe_redirect( add_query_arg( array( 'if_msg' => rawurlencode( $msg ), 'if_ok' => $ok ? '1' : '0' ), admin_url( 'admin.php?page=if-equipo-detalle&equipo=' . $equipo_id ) ) );
+			exit;
+		}
+
+		if ( isset( $_POST['if_jugador_editar'] ) ) {
+			check_admin_referer( 'if_admin_jugador_editar', 'if_admin_jugador_editar_nonce' );
+			$archivo = self::subir_archivo_admin(
+				'if_dni_archivo',
+				array(
+					'jpg|jpeg' => 'image/jpeg',
+					'png'      => 'image/png',
+					'webp'     => 'image/webp',
+					'gif'      => 'image/gif',
+					'pdf'      => 'application/pdf',
+				)
+			);
+			$datos = array(
+				'nombre'   => sanitize_text_field( wp_unslash( $_POST['if_jugador_nombre'] ) ),
+				'apellido' => sanitize_text_field( wp_unslash( $_POST['if_jugador_apellido'] ) ),
+				'dni'      => sanitize_text_field( wp_unslash( $_POST['if_jugador_dni'] ) ),
+			);
+			$ok = true;
+			if ( is_wp_error( $archivo ) ) {
+				$msg = $archivo->get_error_message();
+				$ok  = false;
+			} else {
+				if ( $archivo ) {
+					$datos['archivoDni'] = $archivo;
+				}
+				$r   = IF_App::servicio()->actualizarJugador( intval( $_POST['if_jugador_id'] ), $datos );
+				$ok  = $r->ok;
+				$msg = $r->ok ? __( 'Jugador actualizado.', 'inscripciones-futbol' ) : $r->primerError();
+			}
+			wp_safe_redirect( add_query_arg( array( 'if_msg' => rawurlencode( $msg ), 'if_ok' => $ok ? '1' : '0' ), admin_url( 'admin.php?page=if-equipo-detalle&equipo=' . $equipo_id ) ) );
+			exit;
+		}
+
+		if ( isset( $_POST['if_jugador_eliminar'] ) ) {
+			check_admin_referer( 'if_admin_jugador_eliminar', 'if_admin_jugador_eliminar_nonce' );
+			$r   = IF_App::servicio()->eliminarJugador( intval( $_POST['if_jugador_id'] ) );
+			$msg = $r->ok ? __( 'Jugador eliminado.', 'inscripciones-futbol' ) : $r->primerError();
+			wp_safe_redirect( add_query_arg( array( 'if_msg' => rawurlencode( $msg ), 'if_ok' => $r->ok ? '1' : '0' ), admin_url( 'admin.php?page=if-equipo-detalle&equipo=' . $equipo_id ) ) );
+			exit;
+		}
+
 		// Actions
 		if ( isset( $_GET['accion'] ) && check_admin_referer( 'if_accion', '_wpnonce', false ) ) {
 			$accion = sanitize_key( $_GET['accion'] );
@@ -445,6 +548,10 @@ final class IF_Admin {
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Detalle del equipo', 'inscripciones-futbol' ); ?>: <?php echo esc_html( $equipo_o->nombre ); ?></h1>
+
+			<?php if ( isset( $_GET['if_msg'] ) && $_GET['if_msg'] ) : ?>
+				<div class="notice <?php echo ! empty( $_GET['if_ok'] ) ? 'notice-success' : 'notice-error'; ?> is-dismissible"><p><?php echo esc_html( sanitize_text_field( wp_unslash( $_GET['if_msg'] ) ) ); ?></p></div>
+			<?php endif; ?>
 
 			<div class="if-cards" style="margin-bottom:20px;">
 				<div class="if-card if-card-<?php echo esc_attr( $equipo_o->estado ); ?>">
@@ -468,13 +575,38 @@ final class IF_Admin {
 			<div style="display:grid; grid-template-columns: 1fr 300px; gap:20px; margin-bottom:20px;">
 				<div>
 					<h2><?php esc_html_e( 'Información del equipo', 'inscripciones-futbol' ); ?></h2>
+					<form method="post" action="" enctype="multipart/form-data" style="margin-bottom:12px;">
+						<table class="widefat">
+							<tbody>
+								<tr>
+									<th><label for="if_equipo_nombre"><?php esc_html_e( 'Nombre', 'inscripciones-futbol' ); ?></label></th>
+									<td><input type="text" id="if_equipo_nombre" name="if_equipo_nombre" value="<?php echo esc_attr( $equipo_o->nombre ); ?>" class="regular-text" required /></td>
+								</tr>
+								<tr>
+									<th><label for="if_escudo"><?php esc_html_e( 'Escudo', 'inscripciones-futbol' ); ?></label></th>
+									<td>
+										<?php if ( $equipo_o->escudo ) : ?>
+											<img src="<?php echo esc_url( $equipo_o->escudo ); ?>" alt="" style="max-width:60px;height:auto;vertical-align:middle;margin-right:8px;" />
+										<?php endif; ?>
+										<input type="file" id="if_escudo" name="if_escudo" accept="image/*" />
+										<p class="description"><?php esc_html_e( 'Se reemplaza solo si elegís un archivo.', 'inscripciones-futbol' ); ?></p>
+									</td>
+								</tr>
+								<tr>
+									<th></th>
+									<td>
+										<?php wp_nonce_field( 'if_admin_equipo', 'if_admin_equipo_nonce' ); ?>
+										<button type="submit" name="if_equipo_guardar" class="button button-primary"><?php esc_html_e( 'Guardar equipo', 'inscripciones-futbol' ); ?></button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</form>
 					<table class="widefat">
 						<tbody>
-							<tr><th><?php esc_html_e( 'Nombre', 'inscripciones-futbol' ); ?></th><td><?php echo esc_html( $equipo_o->nombre ); ?></td></tr>
 							<tr><th><?php esc_html_e( 'Estado', 'inscripciones-futbol' ); ?></th><td><span class="if-badge if-badge-<?php echo esc_attr( $equipo_o->estado ); ?>"><?php echo esc_html( Estado::etiquetas()[ $equipo_o->estado ] ); ?></span></td></tr>
 							<tr><th><?php esc_html_e( 'Link de pago propio', 'inscripciones-futbol' ); ?></th><td><?php echo $equipo_o->linkPago ? '<a href="' . esc_url( $equipo_o->linkPago ) . '" target="_blank" rel="noopener">' . esc_url( $equipo_o->linkPago ) . '</a>' : '—'; ?></td></tr>
 							<tr><th><?php esc_html_e( 'Comprobante', 'inscripciones-futbol' ); ?></th><td><?php echo $equipo_o->comprobante ? '<a href="' . esc_url( $equipo_o->comprobante ) . '" target="_blank" rel="noopener">' . esc_html__( 'Ver comprobante', 'inscripciones-futbol' ) . '</a>' : '—'; ?></td></tr>
-							<tr><th><?php esc_html_e( 'Escudo', 'inscripciones-futbol' ); ?></th><td><?php echo $equipo_o->escudo ? '<img src="' . esc_url( $equipo_o->escudo ) . '" style="max-width:100px;height:auto;" />' : '—'; ?></td></tr>
 							<tr><th><?php esc_html_e( 'Creado', 'inscripciones-futbol' ); ?></th><td><?php echo esc_html( $equipo->post_date ); ?></td></tr>
 						</tbody>
 					</table>
@@ -498,6 +630,36 @@ final class IF_Admin {
 			</div>
 
 			<h2><?php esc_html_e( 'Jugadores', 'inscripciones-futbol' ); ?></h2>
+			<form method="post" action="" enctype="multipart/form-data" style="margin-bottom:20px;">
+				<h3 style="margin:0 0 10px;"><?php esc_html_e( 'Agregar jugador', 'inscripciones-futbol' ); ?></h3>
+				<table class="widefat" style="max-width:720px;">
+					<tbody>
+						<tr>
+							<th style="width:140px;"><label for="if_jugador_nombre"><?php esc_html_e( 'Nombre', 'inscripciones-futbol' ); ?></label></th>
+							<td><input type="text" id="if_jugador_nombre" name="if_jugador_nombre" required /></td>
+						</tr>
+						<tr>
+							<th><label for="if_jugador_apellido"><?php esc_html_e( 'Apellido', 'inscripciones-futbol' ); ?></label></th>
+							<td><input type="text" id="if_jugador_apellido" name="if_jugador_apellido" required /></td>
+						</tr>
+						<tr>
+							<th><label for="if_jugador_dni"><?php esc_html_e( 'DNI', 'inscripciones-futbol' ); ?></label></th>
+							<td><input type="text" id="if_jugador_dni" name="if_jugador_dni" required /></td>
+						</tr>
+						<tr>
+							<th><label for="if_dni_archivo"><?php esc_html_e( 'Archivo DNI', 'inscripciones-futbol' ); ?></label></th>
+							<td><input type="file" id="if_dni_archivo" name="if_dni_archivo" accept="image/*,.pdf" /></td>
+						</tr>
+						<tr>
+							<th></th>
+							<td>
+								<?php wp_nonce_field( 'if_admin_jugador_nuevo', 'if_admin_jugador_nuevo_nonce' ); ?>
+								<button type="submit" name="if_jugador_nuevo" class="button button-primary"><?php esc_html_e( 'Agregar jugador', 'inscripciones-futbol' ); ?></button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
 			<?php if ( $jugadores ) : ?>
 				<table class="widefat striped">
 					<thead>
@@ -506,15 +668,37 @@ final class IF_Admin {
 							<th><?php esc_html_e( 'DNI', 'inscripciones-futbol' ); ?></th>
 							<th><?php esc_html_e( 'Foto', 'inscripciones-futbol' ); ?></th>
 							<th><?php esc_html_e( 'DNI archivo', 'inscripciones-futbol' ); ?></th>
+							<th><?php esc_html_e( 'Acciones', 'inscripciones-futbol' ); ?></th>
 						</tr>
 					</thead>
 					<tbody>
 						<?php foreach ( $jugadores as $j ) : ?>
 						<tr>
-							<td><?php echo esc_html( $j->nombreCompleto() ); ?></td>
+							<td>
+								<?php echo esc_html( $j->nombreCompleto() ); ?>
+								<details style="margin-top:8px;">
+									<summary><?php esc_html_e( 'Editar jugador', 'inscripciones-futbol' ); ?></summary>
+									<form method="post" action="" enctype="multipart/form-data" style="margin-top:8px;">
+										<input type="hidden" name="if_jugador_id" value="<?php echo esc_attr( $j->id ); ?>" />
+										<p><label><?php esc_html_e( 'Nombre', 'inscripciones-futbol' ); ?></label> <input type="text" name="if_jugador_nombre" value="<?php echo esc_attr( $j->nombre ); ?>" style="width:180px;" /></p>
+										<p><label><?php esc_html_e( 'Apellido', 'inscripciones-futbol' ); ?></label> <input type="text" name="if_jugador_apellido" value="<?php echo esc_attr( $j->apellido ); ?>" style="width:180px;" /></p>
+										<p><label><?php esc_html_e( 'DNI', 'inscripciones-futbol' ); ?></label> <input type="text" name="if_jugador_dni" value="<?php echo esc_attr( $j->dni ); ?>" style="width:180px;" /></p>
+										<p><label><?php esc_html_e( 'Reemplazar archivo DNI', 'inscripciones-futbol' ); ?></label> <input type="file" name="if_dni_archivo" accept="image/*,.pdf" /></p>
+										<?php wp_nonce_field( 'if_admin_jugador_editar', 'if_admin_jugador_editar_nonce' ); ?>
+										<p><button type="submit" name="if_jugador_editar" class="button button-small"><?php esc_html_e( 'Guardar cambios', 'inscripciones-futbol' ); ?></button></p>
+									</form>
+								</details>
+							</td>
 							<td><?php echo esc_html( $j->dni ); ?></td>
 							<td><?php echo $j->foto ? '<img src="' . esc_url( $j->foto ) . '" style="width:40px;height:40px;object-fit:cover;border-radius:50%;" />' : '—'; ?></td>
 							<td><?php echo $j->archivoDni ? '<a href="' . esc_url( $j->archivoDni ) . '" target="_blank" rel="noopener">' . esc_html__( 'Ver', 'inscripciones-futbol' ) . '</a>' : '—'; ?></td>
+							<td>
+								<form method="post" action="" onsubmit="return confirm('<?php echo esc_js( __( '¿Eliminar este jugador?', 'inscripciones-futbol' ) ); ?>');">
+									<input type="hidden" name="if_jugador_id" value="<?php echo esc_attr( $j->id ); ?>" />
+									<?php wp_nonce_field( 'if_admin_jugador_eliminar', 'if_admin_jugador_eliminar_nonce' ); ?>
+									<button type="submit" name="if_jugador_eliminar" class="button button-small button-link-delete"><?php esc_html_e( 'Eliminar', 'inscripciones-futbol' ); ?></button>
+								</form>
+							</td>
 						</tr>
 						<?php endforeach; ?>
 					</tbody>
@@ -580,6 +764,33 @@ final class IF_Admin {
 		}
 		echo '<a class="button button-small" href="' . esc_url( get_edit_post_link( $equipo->id ) ) . '">' . esc_html__( 'Editar', 'inscripciones-futbol' ) . '</a> ';
 		echo '<a class="button button-small button-link-delete" href="' . esc_url( wp_nonce_url( $url . 'eliminar', 'if_accion' ) ) . '" onclick="return confirm(\'' . esc_js( __( '¿Eliminar este equipo y todos sus jugadores?', 'inscripciones-futbol' ) ) . '\');">' . esc_html__( 'Eliminar', 'inscripciones-futbol' ) . '</a>';
+	}
+
+	/**
+	 * Sube un archivo desde el admin y devuelve su URL (o '' si no se subió nada).
+	 *
+	 * @param string $clave Nombre del campo en $_FILES.
+	 * @param array  $mimes Mapeo de extensiones a tipos MIME permitidos.
+	 * @return string|WP_Error
+	 */
+	private static function subir_archivo_admin( $clave, $mimes ) {
+		if ( empty( $_FILES[ $clave ] ) || empty( $_FILES[ $clave ]['name'] ) ) {
+			return '';
+		}
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$overrides = array(
+			'test_form' => false,
+			'mimes'     => $mimes,
+		);
+
+		$file = wp_handle_upload( $_FILES[ $clave ], $overrides );
+		if ( isset( $file['error'] ) ) {
+			return new WP_Error( 'if_upload', $file['error'] );
+		}
+		return $file['url'];
 	}
 
 	/**

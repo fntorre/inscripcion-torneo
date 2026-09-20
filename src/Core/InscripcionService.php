@@ -224,6 +224,32 @@ final class InscripcionService {
 	}
 
 	/**
+	 * Actualizar nombre y escudo de un equipo (uso administrativo).
+	 *
+	 * @param int   $equipoId ID del equipo.
+	 * @param array $datos    Datos: nombre, escudo.
+	 * @return Resultado
+	 */
+	public function actualizarEquipoDatos( $equipoId, $datos ) {
+		$equipo = $this->store->obtenerEquipo( $equipoId );
+		if ( ! $equipo ) {
+			return Resultado::error( 'Equipo no encontrado.' );
+		}
+		if ( isset( $datos['nombre'] ) ) {
+			$nombre = trim( (string) $datos['nombre'] );
+			if ( ! $nombre ) {
+				return Resultado::error( 'Ingresá el nombre del equipo.' );
+			}
+			$equipo->nombre = $nombre;
+		}
+		if ( isset( $datos['escudo'] ) && '' !== (string) $datos['escudo'] ) {
+			$equipo->escudo = (string) $datos['escudo'];
+		}
+		$this->store->actualizarEquipo( $equipo );
+		return Resultado::exito();
+	}
+
+	/**
 	 * ¿El delegado puede cargar jugadores?
 	 *
 	 * @param int $equipoId ID.
@@ -242,7 +268,30 @@ final class InscripcionService {
 	 * @return Resultado
 	 */
 	public function agregarJugador( $equipoId, $datos ) {
-		if ( ! $this->puedeCargarJugadores( $equipoId ) ) {
+		return $this->crearJugador( $equipoId, $datos, false );
+	}
+
+	/**
+	 * Agregar un jugador como administrador (no depende del estado de la inscripción).
+	 *
+	 * @param int   $equipoId ID del equipo.
+	 * @param array $datos    Datos: nombre, apellido, dni, archivoDni.
+	 * @return Resultado
+	 */
+	public function agregarJugadorAdmin( $equipoId, $datos ) {
+		return $this->crearJugador( $equipoId, $datos, true );
+	}
+
+	/**
+	 * Crea un jugador validando la habilitación salvo que sea operación de admin.
+	 *
+	 * @param int   $equipoId ID del equipo.
+	 * @param array $datos    Datos: nombre, apellido, dni, archivoDni.
+	 * @param bool  $esAdmin  Si es true no valida que la inscripción permita cargar.
+	 * @return Resultado
+	 */
+	private function crearJugador( $equipoId, $datos, $esAdmin ) {
+		if ( ! $esAdmin && ! $this->puedeCargarJugadores( $equipoId ) ) {
 			return Resultado::error( 'La carga de jugadores no está habilitada para esta inscripción.' );
 		}
 		$nombre   = isset( $datos['nombre'] ) ? trim( (string) $datos['nombre'] ) : '';

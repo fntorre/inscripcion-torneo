@@ -13,6 +13,9 @@ namespace IF\Core;
  */
 final class InscripcionService {
 
+	/** Máximo de equipos inscriptos con pago aprobado. */
+	public const MAX_EQUIPOS = 48;
+
 	/** @var InscripcionStore */
 	private $store;
 
@@ -21,6 +24,42 @@ final class InscripcionService {
 	 */
 	public function __construct( InscripcionStore $store ) {
 		$this->store = $store;
+	}
+
+	/**
+	 * Cantidad de equipos inscriptos con pago aprobado.
+	 *
+	 * @return int
+	 */
+	public function contarEquiposActivos() {
+		return count( $this->store->listarEquipos( Estado::ACTIVA ) );
+	}
+
+	/**
+	 * Plazas restantes hasta completar el cupo.
+	 *
+	 * @return int
+	 */
+	public function plazasDisponibles() {
+		return max( 0, self::MAX_EQUIPOS - $this->contarEquiposActivos() );
+	}
+
+	/**
+	 * ¿El cupo de equipos está completo?
+	 *
+	 * @return bool
+	 */
+	public function cupoCompleto() {
+		return $this->plazasDisponibles() <= 0;
+	}
+
+	/**
+	 * Mensaje de cupo completo.
+	 *
+	 * @return string
+	 */
+	private function mensaje_cupo() {
+		return sprintf( 'El cupo de %d equipos ya está completo. No se aceptan más inscripciones.', self::MAX_EQUIPOS );
 	}
 
 	/**
@@ -38,6 +77,10 @@ final class InscripcionService {
 		$email    = isset( $datos['email'] ) ? trim( (string) $datos['email'] ) : '';
 		$password = isset( $datos['password'] ) ? (string) $datos['password'] : '';
 		$equipoNombre = isset( $datos['equipoNombre'] ) ? trim( (string) $datos['equipoNombre'] ) : '';
+
+		if ( $this->cupoCompleto() ) {
+			return Resultado::error( $this->mensaje_cupo() );
+		}
 
 		$errores = array();
 		if ( ! $nombre ) { $errores[] = 'Ingresá tu nombre.'; }
@@ -85,6 +128,9 @@ final class InscripcionService {
 		$nombre = trim( (string) $nombre );
 		if ( ! $nombre ) {
 			return Resultado::error( 'Ingresá el nombre del equipo.' );
+		}
+		if ( $this->cupoCompleto() ) {
+			return Resultado::error( $this->mensaje_cupo() );
 		}
 		if ( $this->store->obtenerEquipoDelegado( $delegadoId ) ) {
 			return Resultado::error( 'Ya tenés un equipo.' );
@@ -148,6 +194,10 @@ final class InscripcionService {
 		$equipo = $this->store->obtenerEquipo( $equipoId );
 		if ( ! $equipo ) {
 			return Resultado::error( 'Equipo no encontrado.' );
+		}
+
+		if ( 'aprobar' === $accion && Estado::ACTIVA !== $equipo->estado && $this->cupoCompleto() ) {
+			return Resultado::error( $this->mensaje_cupo() );
 		}
 
 		if ( 'desbloquear' === $accion ) {

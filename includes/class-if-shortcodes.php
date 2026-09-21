@@ -34,6 +34,29 @@ final class IF_Shortcodes {
 			self::mensaje( 'Ya tenés una sesión iniciada.', 'info' );
 			return ob_get_clean();
 		}
+
+		$servicio = IF_App::servicio();
+		$plazas   = $servicio->plazasDisponibles();
+
+		echo '<p class="if-cupo">' . esc_html(
+			sprintf(
+				__( 'Plazas disponibles: %1$d de %2$d', 'inscripciones-futbol' ),
+				$plazas,
+				$servicio::MAX_EQUIPOS
+			)
+		) . '</p>';
+
+		if ( $servicio->cupoCompleto() ) {
+			self::mensaje(
+				sprintf(
+					__( 'El cupo de %d equipos ya está completo. No se aceptan más inscripciones.', 'inscripciones-futbol' ),
+					$servicio::MAX_EQUIPOS
+				),
+				'error'
+			);
+			return ob_get_clean();
+		}
+
 		self::mostrar_mensaje();
 		?>
 		<form class="if-form if-wizard" method="post" action="">
@@ -167,7 +190,30 @@ final class IF_Shortcodes {
 	 * Paso: crear equipo.
 	 */
 	private static function render_paso_equipo() {
+		$servicio = IF_App::servicio();
+		$plazas   = $servicio->plazasDisponibles();
+
 		echo '<div class="if-card"><h3>' . esc_html__( 'Paso 2 · Tu equipo', 'inscripciones-futbol' ) . '</h3>';
+
+		echo '<p class="if-cupo">' . esc_html(
+			sprintf(
+				__( 'Plazas disponibles: %1$d de %2$d', 'inscripciones-futbol' ),
+				$plazas,
+				$servicio::MAX_EQUIPOS
+			)
+		) . '</p>';
+
+		if ( $servicio->cupoCompleto() ) {
+			self::mensaje(
+				sprintf(
+					__( 'El cupo de %d equipos ya está completo. No se aceptan más inscripciones.', 'inscripciones-futbol' ),
+					$servicio::MAX_EQUIPOS
+				),
+				'error'
+			);
+			echo '</div>';
+			return;
+		}
 		?>
 		<form class="if-form" method="post" action="">
 			<p><label><?php esc_html_e( 'Nombre del equipo', 'inscripciones-futbol' ); ?> *</label><input type="text" name="if_equipo_nombre" required /></p>

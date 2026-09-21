@@ -263,6 +263,8 @@ final class IF_Admin {
 					$etiqueta = 'total' === $clave ? 'Total' : Estado::etiquetas()[ $clave ];
 					echo '<div class="if-card if-card-' . esc_attr( $clave ) . '"><span class="if-card-num">' . esc_html( $valor ) . '</span><span class="if-card-label">' . esc_html( $etiqueta ) . '</span></div>';
 				}
+				$servicio = IF_App::servicio();
+				echo '<div class="if-card if-card-cupo"><span class="if-card-num">' . esc_html( $servicio->plazasDisponibles() . ' / ' . $servicio::MAX_EQUIPOS ) . '</span><span class="if-card-label">' . esc_html__( 'Plazas libres', 'inscripciones-futbol' ) . '</span></div>';
 				?>
 			</div>
 
